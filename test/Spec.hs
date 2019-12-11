@@ -38,7 +38,6 @@ main = do
       it "φ -> ψ, φ |- ψ" $
         property $ \phi psi -> checkProof [Imp phi psi, phi] (reverse [Imp phi psi, phi, psi]) == Correct
 
-
 instance Arbitrary Formula where
   arbitrary = oneof [ generateEq ]
 
