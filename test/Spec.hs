@@ -6,11 +6,11 @@ import Term
 import Formula
 import Proof
 
-import Data.Char(isAlphaNum)
+import Data.Char(isAsciiLower)
 
 main :: IO ()
 main = do
-  quickCheck . verbose $ property $ \phi -> checkProof [phi] [phi] 
+  quickCheck . verbose $ property $ \phi -> checkProof [phi] [phi] == Correct
 
   hspec $ do
     describe "Term.wf_term" $ do
@@ -23,11 +23,20 @@ main = do
       it "Any constant is well-formed if it is in the signature" $
         property $ \s -> wf_term (sig_empty {constants = [s]} ) (Const s)
 
-      it "Any non-logical axiom is a proof of itself" $
-        property $ \phi -> checkProof [phi] [phi] 
+      it "φ |- φ" $
+        property $ \phi -> Correct == checkProof [phi] [phi] 
+
+      it "A = B -> C = D, A = B |- C = D" $
+        checkProof [ Imp (Eq (Const "A") (Const "B")) (Eq (Const "C") (Const "D")) -- A = B -> C = D
+                   , Eq (Const "A") (Const "B")                                    -- A = B
+                   ]
+                   (reverse [ Imp (Eq (Const "A") (Const "B")) (Eq (Const "C") (Const "D")) -- A = B -> C = D
+                   , Eq (Const "A") (Const "B")                                    -- A = B
+                   , Eq (Const "C") (Const "D")                                    -- C = D
+                   ]) `shouldBe` Correct
 
       it "φ -> ψ, φ |- ψ" $
-        property $ \phi psi -> checkProof [Imp phi psi, phi] [Imp phi psi, phi, psi]
+        property $ \phi psi -> checkProof [Imp phi psi, phi] (reverse [Imp phi psi, phi, psi]) == Correct
 
 
 instance Arbitrary Formula where
@@ -57,7 +66,7 @@ generateVar = do s <- generateSymbol
                  return $ Var s
 
 generateSymbol :: Gen Symbol
-generateSymbol = suchThat arbitrary (\s -> length s <= 5 && not (null s) && all Data.Char.isAlphaNum s)
+generateSymbol = suchThat arbitrary (\s -> length s <= 5 && not (null s) && all Data.Char.isAsciiLower s)
 
 generateFApp :: Int -> Gen Term
 generateFApp n = do f <- generateSymbol
