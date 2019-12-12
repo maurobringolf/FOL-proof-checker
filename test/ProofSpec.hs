@@ -18,6 +18,7 @@ proofTests = do
   simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
+  example_1_2  <- readFile "test/proofs/correct/example-1.2.proof"
 
   justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
@@ -80,6 +81,10 @@ proofTests = do
                                     , Imp (Imp phi phi) (And (Imp phi phi) (Imp phi phi))
                                     , (And (Imp phi phi) (Imp phi phi))
                                     ]) ++ example_1_1 phi
+
+      it "example 1.2" $
+        let (_, ctxt, proof) = (parse example_1_2) in
+        checkProof ctxt proof `shouldBe` Correct
 
       it "example 1.3" $
         property $ \phi -> checkProof [] (example_1_3 phi) == Correct

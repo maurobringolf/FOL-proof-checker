@@ -60,4 +60,3 @@ parseTests = do
         property $ \t -> parse ("|- " ++ show t ++ " = " ++ show t) ==
           (sig_empty, [], [Eq t t])
 
-

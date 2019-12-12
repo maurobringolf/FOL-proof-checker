@@ -35,8 +35,8 @@ TokenParser { parens = m_parens
             , commaSep1 = m_commaSep1
             , whiteSpace = m_whiteSpace } = makeTokenParser def
 
-parseFormula :: Parser Formula
-parseFormula = buildExpressionParser formulaTable parseOperand <?> "formula"
+parseFormula :: Signature -> Parser Formula
+parseFormula sig = buildExpressionParser formulaTable (parseOperand sig) <?> "formula"
 
 formulaTable = [
           [ Infix (m_reservedOp "∧" >> return (\l -> \r -> And l r)) AssocRight]
@@ -44,47 +44,61 @@ formulaTable = [
         , [ Infix (m_reservedOp "->" >> return (\l -> \r -> Imp l r))  AssocRight]
         ]
 
-parseOperand :: Parser Formula
-parseOperand = parseEq
+parseOperand :: Signature -> Parser Formula
+parseOperand sig = (parseFA sig)
+               <|> (parseEq sig)
 
-parseEq :: Parser Formula
-parseEq = do t1 <- parseTerm
-             m_symbol "="
-             t2 <- parseTerm
-             return $ Eq t1 t2
+parseFA :: Signature -> Parser Formula
+parseFA sig = do m_symbol "∀"
+                 x <- m_identifier
+                 f <- m_parens (parseFormula sig)
+                 return $ FA x f
 
-parseTerm :: Parser Term
-parseTerm = m_parens parseTerm
-        <|> try parseFApp
-        <|> parseVarConst
+parseEq :: Signature -> Parser Formula
+parseEq sig = do t1 <- parseTerm sig
+                 m_symbol "="
+                 t2 <- parseTerm sig
+                 return $ Eq t1 t2
 
-parseFApp :: Parser Term
-parseFApp = do f <- m_identifier
-               args <- m_parens $ m_commaSep1 parseTerm
-               return $ FApp f args
+parseTerm :: Signature -> Parser Term
+parseTerm sig = parseExp sig
 
-parseVarConst :: Parser Term
-parseVarConst = let isConst c = isDigit c || isUpper c
-                    varConst s = if isConst $ head s then Const s else Var s
-                in
-                do s <- m_identifier
-                   return $ varConst s
+parseExp :: Signature -> Parser Term
+parseExp sig = buildExpressionParser (map (\f -> [ Infix (m_symbol f >> return (\l -> \r -> FApp f [l, r])) AssocRight] ) (binary_functions sig)) (parseAtom sig) <?> "term"
+
+parseAtom :: Signature -> Parser Term
+parseAtom sig = m_parens (parseTerm sig)
+            <|> try (parseFApp sig)
+            <|> parseVarConst sig
+
+parseFApp :: Signature -> Parser Term
+parseFApp sig = do f <- m_identifier
+                   args <- m_parens $ m_commaSep1 (parseTerm sig)
+                   return $ FApp f args
+
+parseVarConst :: Signature -> Parser Term
+parseVarConst sig = let isConst c = c `elem` (constants sig)
+                        varConst s = if isConst s then Const s else Var s
+                    in
+                    do s <- m_identifier
+                       return $ varConst s
 
 parseSignature :: Parser Signature
-parseSignature = do return sig_empty
+parseSignature = (m_symbol "#PA" >> return sig_PA)
+             <|> return sig_empty
 
-parseContext :: Parser Context
-parseContext = many parseFormula
+parseContext :: Signature -> Parser Context
+parseContext sig = many (parseFormula sig)
 
-parseProof :: Parser Proof
-parseProof = do fs <- many parseFormula
-                return $ reverse fs
+parseProof :: Signature -> Parser Proof
+parseProof sig = do fs <- many (parseFormula sig)
+                    return $ reverse fs
 
 parseProofText :: Parser (Signature, Context, Proof)
 parseProofText = do sig   <- parseSignature
-                    ctxt  <- parseContext
+                    ctxt  <- parseContext sig
                     m_symbol "|-"
-                    proof <- parseProof
+                    proof <- parseProof sig
                     return (sig, ctxt, proof)
 
 parse :: String -> (Signature, Context, Proof)
