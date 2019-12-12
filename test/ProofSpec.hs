@@ -49,22 +49,38 @@ proofTests = do
           Incorrect _ f -> Just f
           Correct -> Nothing
         `shouldBe` Just (Eq (FApp "f" [Const "0"]) (FApp "g" [Const "1"]))
-      
-      it "example 1.1" $
-        
-        property $ \phi ->
-            checkProof []
-            (reverse [ -- (φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))
-              Imp (Imp phi (Imp (Imp phi phi) phi)) (Imp (Imp phi (Imp phi phi)) (Imp phi phi))
-            , -- φ -> ((φ -> φ) -> φ)
-              Imp phi (Imp (Imp phi phi) phi)
-            ,
-              -- (φ -> (φ -> φ)) -> (φ -> φ)
-              Imp (Imp phi (Imp phi phi)) (Imp phi phi)
-            , -- φ -> (φ -> φ)
-              Imp phi (Imp phi phi)
-            , -- φ -> φ
-              Imp phi phi
-            ]) == Correct
 
-        
+      {- Example 1.1
+
+         (φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))
+         φ -> ((φ -> φ) -> φ)
+         (φ -> (φ -> φ)) -> (φ -> φ)
+         φ -> (φ -> φ)
+         φ -> φ
+      -}
+      let example_1_1 phi = reverse [ Imp (Imp phi (Imp (Imp phi phi) phi)) (Imp (Imp phi (Imp phi phi)) (Imp phi phi))
+                                    , Imp phi (Imp (Imp phi phi) phi)
+                                    , Imp (Imp phi (Imp phi phi)) (Imp phi phi)
+                                    , Imp phi (Imp phi phi)
+                                    , Imp phi phi
+                                    ]
+
+      it "example 1.1" $
+        property $ \phi -> checkProof [] (example_1_1 phi) == Correct
+
+      {- Example 1.3
+
+        φ -> φ
+        (φ -> φ) -> ((φ <-> φ) -> (φ <-> φ))
+        (φ -> φ) -> (φ <-> φ)
+        φ <-> φ
+      -}
+      let example_1_3 phi = (reverse [ Imp phi phi  
+                                    , Imp (Imp phi phi) (Imp (Imp phi phi) (And (Imp phi phi) (Imp phi phi)))
+                                    , Imp (Imp phi phi) (And (Imp phi phi) (Imp phi phi))
+                                    , (And (Imp phi phi) (Imp phi phi))
+                                    ]) ++ example_1_1 phi
+
+      it "example 1.3" $
+        property $ \phi -> checkProof [] (example_1_3 phi) == Correct
+
