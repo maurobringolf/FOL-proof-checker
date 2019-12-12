@@ -10,8 +10,10 @@ l1 f = case f of
   Imp f1 (Imp f2 f3) -> f1 == f3 
   _ -> False
 
--- TODO
 l2 f = case f of
+  Imp
+    (Imp f1 (Imp f2 f3))
+    (Imp (Imp f4 f5) (Imp f6 f7)) -> f1 == f4 && f2 == f5 && f3 == f6
   _ -> False
 
 l3 f = case f of
@@ -26,12 +28,12 @@ l5 f = case f of
   Imp f1 (Imp f2 (And f3 f4)) -> f1 == f3 && f4 == f2
   _ -> False
 
--- TODO
 l6 f = case f of
+  Imp f1 (Or f2 f3) -> f1 == f2
   _ -> False
   
--- TODO
 l7 f = case f of
+  Imp f1 (Or f2 f3) -> f1 == f3
   _ -> False
 
 -- TODO
@@ -58,7 +60,6 @@ l12 f = case f of
 l13 f = case f of
   _ -> False
 
--- TODO
 l14 f = case f of
   Eq t1 t2 -> t1 == t2
   _ -> False

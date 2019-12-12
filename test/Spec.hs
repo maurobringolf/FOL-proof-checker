@@ -8,10 +8,14 @@ import Proof
 
 import Data.Char(isAsciiLower)
 
+import ProofSpec(proofTests)
 import ParserSpec(parseTests)
 import MiscSpec(miscTests)
 
 main :: IO ()
-main = do miscTests
-          parseTests
+main = do parseTests
+          proofTests
+          miscTests
+          
+          
 

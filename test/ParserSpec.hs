@@ -15,11 +15,11 @@ import Data.Char(isAsciiLower)
 
 parseTests :: IO ()
 parseTests = do
-  simpleMP <- readFile "test/proofs/simple-modus-ponens.proof"
-  justEq   <- readFile "test/proofs/just-equality.proof"
-  fAppEq   <- readFile "test/proofs/fapp-equality.proof"
-  justAnd  <- readFile "test/proofs/just-and.proof"
-  justOr  <- readFile "test/proofs/just-or.proof"
+  simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
+  justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
+  fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
+  justAnd  <- readFile "test/proofs/correct/just-and.proof"
+  justOr  <- readFile "test/proofs/correct/just-or.proof"
 
   hspec $ do
     describe "Parser tests" $ do
@@ -41,7 +41,12 @@ parseTests = do
 
       it ("parse just-and.proof") $ do
         let phi = Eq (Const "1") (Const "1")
-        parse justAnd `shouldBe` (sig_empty, [], [And phi phi])
+        parse justAnd `shouldBe` (sig_empty, [],
+          [ And phi phi
+          , Imp phi (And phi phi)
+          , Imp phi (Imp phi (And phi phi))
+          , phi
+          ])
 
       it ("parse just-or.proof") $ do
         let phi = Eq (Const "1") (Const "1")

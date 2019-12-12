@@ -54,10 +54,9 @@ parseEq = do t1 <- parseTerm
              return $ Eq t1 t2
 
 parseTerm :: Parser Term
-parseTerm = choice [ m_parens parseTerm
-                   , parseFApp
-                   , parseVarConst
-                   ]
+parseTerm = m_parens parseTerm
+        <|> try parseFApp
+        <|> parseVarConst
 
 parseFApp :: Parser Term
 parseFApp = do f <- m_identifier
