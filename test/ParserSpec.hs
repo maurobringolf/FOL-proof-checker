@@ -50,7 +50,11 @@ parseTests = do
 
       it ("parse just-or.proof") $ do
         let phi = Eq (Const "1") (Const "1")
-        parse justOr `shouldBe` (sig_empty, [], [Or phi phi])
+        parse justOr `shouldBe` (sig_empty, [],
+          [ Or phi phi
+          , Imp phi (Or phi phi)
+          , phi
+          ])
 
       it ("Can parse equality of any two terms") $ do
         property $ \t -> parse ("|- " ++ show t ++ " = " ++ show t) ==

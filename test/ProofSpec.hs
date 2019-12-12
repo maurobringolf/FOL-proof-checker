@@ -49,5 +49,22 @@ proofTests = do
           Incorrect _ f -> Just f
           Correct -> Nothing
         `shouldBe` Just (Eq (FApp "f" [Const "0"]) (FApp "g" [Const "1"]))
+      
+      it "example 1.1" $
+        
+        property $ \phi ->
+            checkProof []
+            (reverse [ -- (φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))
+              Imp (Imp phi (Imp (Imp phi phi) phi)) (Imp (Imp phi (Imp phi phi)) (Imp phi phi))
+            , -- φ -> ((φ -> φ) -> φ)
+              Imp phi (Imp (Imp phi phi) phi)
+            ,
+              -- (φ -> (φ -> φ)) -> (φ -> φ)
+              Imp (Imp phi (Imp phi phi)) (Imp phi phi)
+            , -- φ -> (φ -> φ)
+              Imp phi (Imp phi phi)
+            , -- φ -> φ
+              Imp phi phi
+            ]) == Correct
 
-
+        
