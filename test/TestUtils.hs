@@ -9,10 +9,14 @@ import Term
 import qualified Data.Char(isAsciiLower, isUpper)
 
 instance Arbitrary Formula where
-  arbitrary = oneof [ generateEq, generateFA, generateEX, generateNot, generateAnd, generateOr, generateImp ]
+  arbitrary = do n <- getSize
+                 oneof $ [ generateEq ] ++ (if n > 0 then [generateFA, generateEX , generateNot, generateAnd ,generateOr, generateImp ] else [])
 
 instance Arbitrary Term where
   arbitrary = genTerm 1
+
+smaller :: Gen a -> Gen a
+smaller = scale (\n -> n `div` 2)
 
 -- Generates a term of maximum height `n`
 genTerm :: Int -> Gen Term
@@ -25,31 +29,31 @@ generateEq = do t1 <- arbitrary
                 return $ Eq t1 t2
 
 generateFA :: Gen Formula
-generateFA = do f <- arbitrary
+generateFA = do f <- smaller arbitrary
                 x <- generateSymbol
                 return $ FA x f
 
 generateNot :: Gen Formula
-generateNot = do f <- arbitrary
+generateNot = do f <- smaller arbitrary
                  return $ Not f
 
 generateAnd :: Gen Formula
-generateAnd = do f1 <- arbitrary
-                 f2 <- arbitrary
+generateAnd = do f1 <- smaller arbitrary
+                 f2 <- smaller arbitrary
                  return $ And f1 f2
 
 generateOr :: Gen Formula
-generateOr = do f1 <- arbitrary
-                f2 <- arbitrary
+generateOr = do f1 <- smaller arbitrary
+                f2 <- smaller arbitrary
                 return $ And f1 f2
 
 generateImp :: Gen Formula
-generateImp = do f1 <- arbitrary
-                 f2 <- arbitrary
+generateImp = do f1 <- smaller arbitrary
+                 f2 <- smaller arbitrary
                  return $ Imp f1 f2
                   
 generateEX :: Gen Formula
-generateEX = do f <- arbitrary
+generateEX = do f <- smaller arbitrary
                 x <- generateSymbol
                 return $ EX x f
 

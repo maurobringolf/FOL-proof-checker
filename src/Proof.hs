@@ -59,7 +59,6 @@ l10 f = case f of
       True
   _ -> False
 
-
 -- TODO
 l11 f = case f of
   _ -> False
