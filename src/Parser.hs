@@ -98,8 +98,7 @@ parseDetailedSignature = do m_symbol "constants:"
                             return $ sig_empty { constants = cs }
 
 parseSignature :: Parser Signature
-parseSignature = (m_symbol "#PA" >> return sig_PA)
-             <|> try parseDetailedSignature
+parseSignature = try parseDetailedSignature
              <|> return sig_empty
 
 parseContext :: Signature -> Parser Context
@@ -109,13 +108,23 @@ parseProof :: Signature -> Parser Proof
 parseProof sig = do fs <- many (parseFormula sig)
                     return $ reverse fs
 
+parseTheory :: Parser (Signature, Context)
+parseTheory = m_symbol "#PA" >> return (sig_PA, ctxt_PA)
+                 
+
+parsePreamble :: Parser (Signature, Context)
+parsePreamble = parseTheory
+            <|> (do sig <- parseSignature
+                    ctxt <- parseContext sig
+                    return (sig, ctxt))
+
 parseProofText :: Parser (Signature, Context, Proof)
-parseProofText = do sig   <- parseSignature
-                    ctxt  <- parseContext sig
+parseProofText = do (sig, ctxt) <- parsePreamble
+                    ctxt' <- parseContext sig
                     m_symbol "|-"
                     proof <- parseProof sig
                     eof
-                    return (sig, ctxt, proof)
+                    return (sig, ctxt ++ ctxt', proof)
 
 parse :: String -> (Signature, Context, Proof)
 parse text = case Text.Parsec.parse parseProofText "" text of

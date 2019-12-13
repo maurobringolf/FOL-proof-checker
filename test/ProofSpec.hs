@@ -29,6 +29,7 @@ proofTests = do
   l8   <- readFile "test/proofs/correct/L8.proof"
   l9   <- readFile "test/proofs/correct/L9.proof"
   l10   <- readFile "test/proofs/correct/L10.proof"
+  l16   <- readFile "test/proofs/correct/L16.proof"
 
   justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
@@ -80,6 +81,10 @@ proofTests = do
 
       it "L9" $ do
         let (_, ctxt, proof) = parse l9
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "L16" $ do
+        let (_, ctxt, proof) = parse l16
         checkProof ctxt proof `shouldBe` Correct
 
 
