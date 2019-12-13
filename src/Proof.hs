@@ -93,35 +93,33 @@ l14 f = case f of
   _ -> False
 
 l15 f = case f of
+  Imp (And (Eq tau1 tau1') (Eq tau2 tau2'))
+    (Imp (Eq _tau1 _tau2) (Eq _tau1' _tau2')) -> tau1 == _tau1 && tau1' == _tau1' && tau2 == _tau2 && tau2' == _tau2'
   Imp f' (Imp (Rel r1 args1) (Rel r2 args2)) ->
-    case (do (taus, taus') <- unwrapLhs f'
+    case (do (taus, taus') <- lhsToEquals f'
              return $ r1 == r2 && args1 == taus && args2 == taus') of
       Just  b -> b
       Nothing -> False
-    where
-      unwrapLhs :: Formula -> Maybe ([Term], [Term])
-      unwrapLhs f = case f of
-        And (Eq tau tau') rest -> do (taus, taus') <- unwrapLhs rest
-                                     return (tau:taus, tau':taus')
-        _ -> Nothing
   _ -> False
 
 l16 f = case f of
   Imp f' (Eq (FApp f1 args1) (FApp f2 args2)) ->
-    case (do (taus, taus') <- unwrapLhs f'
+    case (do (taus, taus') <- lhsToEquals f'
              return $ f1 == f2 && args1 == taus && args2 == taus') of
       Just  b -> b
       Nothing -> False
     where
-      unwrapLhs :: Formula -> Maybe ([Term], [Term])
-      unwrapLhs f = case f of
-        Eq tau tau'            -> Just ([tau], [tau'])
-        And rest (Eq tau tau') -> do (taus, taus') <- unwrapLhs rest
-                                     return (tau:taus, tau':taus')
-        And (Eq tau tau') rest -> do (taus, taus') <- unwrapLhs rest
-                                     return (tau:taus, tau':taus')
         _                      -> Nothing
   _ -> False
+
+
+lhsToEquals :: Formula -> Maybe ([Term], [Term])
+lhsToEquals f = case f of
+  Eq tau tau'            -> Just ([tau], [tau'])
+  And rest (Eq tau tau') -> do (taus, taus') <- lhsToEquals rest
+                               return (tau:taus, tau':taus')
+  And (Eq tau tau') rest -> do (taus, taus') <- lhsToEquals rest
+                               return (tau:taus, tau':taus')
 
 logicalAxiom :: Formula -> Bool
 logicalAxiom f = foldr (\l b -> b || l f) False [ l1
