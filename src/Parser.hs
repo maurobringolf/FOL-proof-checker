@@ -108,6 +108,7 @@ parseProofText = do sig   <- parseSignature
                     ctxt  <- parseContext sig
                     m_symbol "|-"
                     proof <- parseProof sig
+                    eof
                     return (sig, ctxt, proof)
 
 parse :: String -> (Signature, Context, Proof)
