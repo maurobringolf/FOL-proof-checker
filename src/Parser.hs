@@ -46,7 +46,7 @@ formulaTable = [
         ]
 
 parseOperand :: Signature -> Parser Formula
-parseOperand sig = m_parens (parseFormula sig)
+parseOperand sig = try (m_parens (parseFormula sig))
                <|> (parseFA sig)
                <|> (parseEq sig)
 
