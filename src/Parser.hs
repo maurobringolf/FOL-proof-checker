@@ -47,8 +47,14 @@ formulaTable = [
 
 parseOperand :: Signature -> Parser Formula
 parseOperand sig = try (m_parens (parseFormula sig))
+               <|> (parseNot sig)
                <|> (parseFA sig)
                <|> (parseEq sig)
+
+parseNot :: Signature -> Parser Formula
+parseNot sig = do m_symbol "¬"
+                  f <- m_parens $ parseFormula sig
+                  return $ Not f
 
 parseFA :: Signature -> Parser Formula
 parseFA sig = do m_symbol "∀"

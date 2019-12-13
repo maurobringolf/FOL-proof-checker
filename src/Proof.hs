@@ -13,7 +13,7 @@ l1 f = case f of
 l2 f = case f of
   Imp
     (Imp f1 (Imp f2 f3))
-    (Imp (Imp f4 f5) (Imp f6 f7)) -> f1 == f4 && f2 == f5 && f3 == f6
+    (Imp (Imp f4 f5) (Imp f6 f7)) -> f1 == f4 && f2 == f5 && f1 == f6 && f3 == f7
   _ -> False
 
 l3 f = case f of
@@ -36,12 +36,14 @@ l7 f = case f of
   Imp f1 (Or f2 f3) -> f1 == f3
   _ -> False
 
--- TODO
 l8 f = case f of
+  Imp (Imp f1 f2) (Imp
+    (Imp f3 f4)
+    (Imp (Or f5 f6) f7)) -> f1 == f5 && f2 == f4 && f3 == f6 && f2 == f7
   _ -> False
 
--- TODO
 l9 f = case f of
+  Imp (Not f1) (Imp f2 f3) -> f1 == f2
   _ -> False
 
 -- TODO

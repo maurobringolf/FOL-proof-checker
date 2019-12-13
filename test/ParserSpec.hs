@@ -21,6 +21,7 @@ parseTests = do
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
+  l9  <- readFile "test/proofs/correct/L9.proof"
 
   hspec $ do
     describe "Parser tests" $ do
@@ -39,6 +40,12 @@ parseTests = do
         
       it ("parse fapp-equality.proof") $ do
         parse fAppEq `shouldBe` (sig_empty { constants = ["0", "1"] }, [], [Eq (FApp "f" [Const "0"]) (FApp "g" [Const "1"])])
+
+      it ("parse L9.proof") $ do
+        parse l9 `shouldBe` (sig_empty, [], [
+        -- ¬(x = x) -> x = x -> x = y
+          Imp (Not (Eq (Var "x") (Var "x"))) (Imp (Eq (Var "x") (Var "x")) (Eq (Var "x") (Var "y")))
+          ])
 
       it ("parse just-and.proof") $ do
         let phi = Eq (Const "1") (Const "1")

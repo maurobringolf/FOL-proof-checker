@@ -1,0 +1,8 @@
+|-
+-- f -> (p -> f)
+x = x -> x = x -> x = x
+x = x -> (x = x -> x = x)
+x = x -> ((x = x) -> (x = x))
+x = x -> y = x -> x = x
+x = x -> y = y -> x = x
+x = x -> (y = y ∨ x = z) -> x = x
