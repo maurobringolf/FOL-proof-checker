@@ -9,8 +9,12 @@ import Signature
 import Term
 import Formula
 import Proof
+import AstUtils
 
 import Parser
+
+import qualified Data.Set as Set
+import Data.Maybe(fromJust)
 
 proofTests :: IO ()
 proofTests = do
@@ -24,6 +28,7 @@ proofTests = do
   l3   <- readFile "test/proofs/correct/L3.proof"
   l8   <- readFile "test/proofs/correct/L8.proof"
   l9   <- readFile "test/proofs/correct/L9.proof"
+  l10   <- readFile "test/proofs/correct/L10.proof"
 
   justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
@@ -75,6 +80,31 @@ proofTests = do
 
       it "L9" $ do
         let (_, ctxt, proof) = parse l9
+        checkProof ctxt proof `shouldBe` Correct
+
+
+      it "subst 1" $ do
+        property $ \t -> substF "x" t (Eq (Var "x") (Var "y")) == Eq t (Var "y")
+
+      it "subst 2" $ do
+        property $ \t -> substF "x" t (FA "x" (Eq (Var "x") (Var "y"))) == (FA "x" (Eq (Var "x") (Var "y"))) 
+
+      it "subst 3" $ do
+        property $ \t -> substF "x" t (FA "z" (Eq (Var "x") (Var "y"))) == (FA "z" (Eq t (Var "y"))) 
+
+      it "findTau 1" $ do
+        findTau "x" (Eq (Var "x") (Var "x")) (Eq (Const "1") (Const "1")) `shouldBe` Just (Const "1")
+        findTau "x" (FA "z" (Eq (Var "x") (Var "x"))) (Eq (Const "1") (Const "1")) `shouldBe` Nothing
+        findTau "x" (FA "z" (Eq (Var "x") (Var "x"))) (FA "z" (Eq (Const "1") (Const "1"))) `shouldBe` Just (Const "1")
+        findTau "x" (FA "a" (Eq (Var "x") (Var "x"))) (FA "z" (Eq (Const "1") (Const "1"))) `shouldBe` Nothing
+        findTau "x" (And (Eq (Var "x") (Var "x")) (Eq (Var "x") (Var "x"))) (And (Eq (Const "1") (Const "1")) (Eq (Const "1") (Const "1"))) `shouldBe` Just (Const "1")
+
+      it "findTau 2" $ do
+        property $ \t f -> not (null (freeF f)) ==> let x = Data.Maybe.fromJust (Set.lookupGT "" (freeF f)) in
+          findTau x f (substF x t f) == Just t
+
+      it "L10" $ do
+        let (_, ctxt, proof) = parse l10
         checkProof ctxt proof `shouldBe` Correct
 
       {- Example 1.1

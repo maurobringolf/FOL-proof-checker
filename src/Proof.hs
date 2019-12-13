@@ -1,6 +1,11 @@
+
 module Proof where
 
+import Signature
+import Term
 import Formula
+import AstUtils
+
 
 type Proof = [Formula]
 
@@ -48,7 +53,12 @@ l9 f = case f of
 
 -- TODO
 l10 f = case f of
+  Imp (FA x f1) f2 -> let
+    tau = findTau x f1 f2
+    in
+      True
   _ -> False
+
 
 -- TODO
 l11 f = case f of

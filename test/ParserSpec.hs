@@ -8,6 +8,7 @@ import Term
 import Formula
 import Proof
 import Parser
+import AstUtils
 
 import TestUtils
 
