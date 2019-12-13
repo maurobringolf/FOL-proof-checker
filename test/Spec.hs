@@ -14,8 +14,8 @@ import MiscSpec(miscTests)
 
 main :: IO ()
 main = do parseTests
-          proofTests
           miscTests
+          proofTests
           
           
 

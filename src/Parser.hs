@@ -32,6 +32,7 @@ TokenParser { parens = m_parens
             , symbol = m_symbol
             , lexeme = m_lexeme
             , semiSep1 = m_semiSep1
+            , commaSep = m_commaSep
             , commaSep1 = m_commaSep1
             , whiteSpace = m_whiteSpace } = makeTokenParser def
 
@@ -83,8 +84,15 @@ parseVarConst sig = let isConst c = c `elem` (constants sig)
                     do s <- m_identifier
                        return $ varConst s
 
+parseDetailedSignature :: Parser Signature
+parseDetailedSignature = do m_symbol "constants:"
+                            cs <- m_commaSep m_identifier
+                            -- TODO Do we need functions and relations?
+                            return $ sig_empty { constants = cs }
+
 parseSignature :: Parser Signature
 parseSignature = (m_symbol "#PA" >> return sig_PA)
+             <|> try parseDetailedSignature
              <|> return sig_empty
 
 parseContext :: Signature -> Parser Context

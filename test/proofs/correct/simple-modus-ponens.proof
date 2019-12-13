@@ -1,6 +1,12 @@
+constants: A, B, C, D
+
+--
+
 A = B -> C = D
 A = B
+
 |-
+
 A = B -> C = D
 A = B
 C = D
