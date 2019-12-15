@@ -47,7 +47,7 @@ l4 f = case f of
   _ -> False
 
 l5 f = case f of
-  Imp f1 (Imp f2 (And f3 f4)) -> f1 == f4 && f2 == f4
+  Imp f1 (Imp f2 (And f3 f4)) -> f1 == f4 && f2 == f3
   _ -> False
 
 l6 f = case f of
@@ -93,8 +93,6 @@ l14 f = case f of
   _ -> False
 
 l15 f = case f of
-  Imp (And (Rel "=" [tau1, tau1']) (Rel "=" [tau2, tau2']))
-    (Imp (Rel "=" [_tau1, _tau2]) (Rel "=" [_tau1', _tau2'])) -> tau1 == _tau1 && tau1' == _tau1' && tau2 == _tau2 && tau2' == _tau2'
   Imp f' (Imp (Rel r1 args1) (Rel r2 args2)) ->
     case (do (taus, taus') <- lhsToEquals f'
              return $ r1 == r2 && args1 == taus && args2 == taus') of
@@ -104,10 +102,10 @@ l15 f = case f of
 
 l16 f = case f of
   Imp f' (Rel "=" [FApp f1 args1, FApp f2 args2]) ->
-    case (do (taus, taus') <- lhsToEquals f'
-             return $ f1 == f2 && args1 == taus && args2 == taus') of
-      Just  b -> b
-      Nothing -> False
+    (case (do (taus, taus') <- lhsToEquals f'
+              return $ f1 == f2 && args1 == taus && args2 == taus') of
+        Just  b -> b
+        Nothing -> False)
   _ -> False
 
 
@@ -115,7 +113,7 @@ lhsToEquals :: Formula -> Maybe ([Term], [Term])
 lhsToEquals f = case f of
   Rel "=" [tau, tau'] -> Just ([tau], [tau'])
   And rest (Rel "=" [tau, tau']) -> do (taus, taus') <- lhsToEquals rest
-                                       return (tau:taus, tau':taus')
+                                       return (taus ++ [tau], taus' ++ [tau'])
   And (Rel "=" [tau, tau']) rest -> do (taus, taus') <- lhsToEquals rest
                                        return (tau:taus, tau':taus')
   _ -> Nothing

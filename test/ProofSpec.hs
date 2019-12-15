@@ -22,10 +22,12 @@ proofTests = do
   simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
-  example_1_2  <- readFile "test/proofs/correct/example-1.2.proof"
+  example_1_2_broken  <- readFile "test/proofs/incorrect/example-1.2.proof"
+  example_1_2_fixed  <- readFile "test/proofs/correct/example-1.2.proof"
   l1   <- readFile "test/proofs/correct/L1.proof"
   l2   <- readFile "test/proofs/correct/L2.proof"
   l3   <- readFile "test/proofs/correct/L3.proof"
+  l5   <- readFile "test/proofs/correct/L5.proof"
   l8   <- readFile "test/proofs/correct/L8.proof"
   l9   <- readFile "test/proofs/correct/L9.proof"
   l10   <- readFile "test/proofs/correct/L10.proof"
@@ -74,6 +76,10 @@ proofTests = do
 
       it "L3" $ do
         let (_, ctxt, proof) = parse l3
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "L5" $ do
+        let (_, ctxt, proof) = parse l5
         checkProof ctxt proof `shouldBe` Correct
 
       it "L8" $ do
@@ -148,8 +154,15 @@ proofTests = do
                                     , (And (Imp phi phi) (Imp phi phi))
                                     ]) ++ example_1_1 phi
 
-      it "example 1.2" $
-        let (_, ctxt, proof) = (parse example_1_2) in
+      it "example 1.2 broken" $
+        let (_, ctxt, proof) = (parse example_1_2_broken) in
+        (case (checkProof ctxt proof) of
+          Correct -> False
+          Incorrect _ _ -> True
+        ) `shouldBe` True
+
+      it "example 1.2 fixed" $
+        let (_, ctxt, proof) = (parse example_1_2_fixed) in
         checkProof ctxt proof `shouldBe` Correct
 
       it "example 1.3" $
