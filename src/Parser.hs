@@ -66,7 +66,7 @@ parseEq :: Signature -> Parser Formula
 parseEq sig = do t1 <- parseTerm sig
                  m_symbol "="
                  t2 <- parseTerm sig
-                 return $ Eq t1 t2
+                 return $ Rel "=" [t1, t2]
 
 parseTerm :: Signature -> Parser Term
 parseTerm sig = parseExp sig

@@ -54,14 +54,14 @@ proofTests = do
         case checkProof ctxt proof of
           Incorrect _ f -> Just f
           Correct -> Nothing
-        `shouldBe` Just (Eq (Var "x") (Var "y"))
+        `shouldBe` Just (Rel "=" [Var "x", Var "y"])
 
       it "just eq" $ do
         let (_, ctxt, proof) = parse fAppEq
         case checkProof ctxt proof of
           Incorrect _ f -> Just f
           Correct -> Nothing
-        `shouldBe` Just (Eq (FApp "f" [Const "0"]) (FApp "g" [Const "1"]))
+        `shouldBe` Just (Rel "=" [FApp "f" [Const "0"], FApp "g" [Const "1"]])
 
       -- Check all the axioms
       it "L1" $ do
@@ -94,20 +94,20 @@ proofTests = do
 
 
       it "subst 1" $ do
-        property $ \t -> substF "x" t (Eq (Var "x") (Var "y")) == Eq t (Var "y")
+        property $ \t -> substF "x" t (Rel "=" [Var "x", Var "y"]) == Rel "=" [t, Var "y"]
 
       it "subst 2" $ do
-        property $ \t -> substF "x" t (FA "x" (Eq (Var "x") (Var "y"))) == (FA "x" (Eq (Var "x") (Var "y"))) 
+        property $ \t -> substF "x" t (FA "x" (Rel "=" [Var "x", Var "y"])) == (FA "x" (Rel "=" [Var "x", Var "y"])) 
 
       it "subst 3" $ do
-        property $ \t -> substF "x" t (FA "z" (Eq (Var "x") (Var "y"))) == (FA "z" (Eq t (Var "y"))) 
+        property $ \t -> substF "x" t (FA "z" (Rel "=" [Var "x", Var "y"])) == (FA "z" (Rel "=" [t, Var "y"])) 
 
       it "findTau 1" $ do
-        findTau "x" (Eq (Var "x") (Var "x")) (Eq (Const "1") (Const "1")) `shouldBe` Just (Const "1")
-        findTau "x" (FA "z" (Eq (Var "x") (Var "x"))) (Eq (Const "1") (Const "1")) `shouldBe` Nothing
-        findTau "x" (FA "z" (Eq (Var "x") (Var "x"))) (FA "z" (Eq (Const "1") (Const "1"))) `shouldBe` Just (Const "1")
-        findTau "x" (FA "a" (Eq (Var "x") (Var "x"))) (FA "z" (Eq (Const "1") (Const "1"))) `shouldBe` Nothing
-        findTau "x" (And (Eq (Var "x") (Var "x")) (Eq (Var "x") (Var "x"))) (And (Eq (Const "1") (Const "1")) (Eq (Const "1") (Const "1"))) `shouldBe` Just (Const "1")
+        findTau "x" (Rel "=" [Var "x", Var "x"]) (Rel "=" [Const "1", Const "1"]) `shouldBe` Just (Const "1")
+        findTau "x" (FA "z" (Rel "=" [Var "x", Var "x"])) (Rel "=" [Const "1", Const "1"]) `shouldBe` Nothing
+        findTau "x" (FA "z" (Rel "=" [Var "x", Var "x"])) (FA "z" (Rel "=" [Const "1", Const "1"])) `shouldBe` Just (Const "1")
+        findTau "x" (FA "a" (Rel "=" [Var "x", Var "x"])) (FA "z" (Rel "=" [Const "1", Const "1"])) `shouldBe` Nothing
+        findTau "x" (And (Rel "=" [Var "x", Var "x"]) (Rel "=" [Var "x", Var "x"])) (And (Rel "=" [Const "1", Const "1"]) (Rel "=" [Const "1", Const "1"])) `shouldBe` Just (Const "1")
 
       it "findTau 2" $ do
         property $ \t f -> not (null (freeF f)) ==> let x = Data.Maybe.fromJust (Set.lookupGT "" (freeF f)) in

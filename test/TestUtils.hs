@@ -26,7 +26,7 @@ genTerm n = oneof ([ generateConst, generateVar ] ++
 generateEq :: Gen Formula
 generateEq = do t1 <- arbitrary
                 t2 <- arbitrary
-                return $ Eq t1 t2
+                return $ Rel "=" [t1, t2]
 
 generateFA :: Gen Formula
 generateFA = do f <- smaller arbitrary

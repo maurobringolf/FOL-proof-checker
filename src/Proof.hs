@@ -13,15 +13,15 @@ type Context = [Formula]
 
 ctxt_PA :: Context
 ctxt_PA = [ -- PA_0: ¬∃x(s(x) = 0)
-            Not (EX "x" (Eq (FApp "s" [Var "x"]) (Const "0")))
+            Not (EX "x" (Rel "=" [FApp "s" [Var "x"], (Const "0")]))
           , -- PA_1: ∀x∀y(s(x) = s(y) -> x = y)
-            FA "x" (FA "y" (Imp (Eq (FApp "s" [Var "x"]) (FApp "s" [Var "y"])) (Eq (Var "x") (Var "y"))))
+            FA "x" (FA "y" (Imp (Rel "=" [FApp "s" [Var "x"], FApp "s" [Var "y"]]) (Rel "=" [Var "x", Var "y"])))
           , -- PA_2: ∀x(x + 0 = x)
-            FA "x" (Eq (FApp "+" [Var "x", Const "0"]) (Var "x"))
+            FA "x" (Rel "=" [FApp "+" [Var "x", Const "0"], Var "x"])
           , -- PA_3: ∀x∀y(x + s(y) = s(x + y))
-            FA "x" (FA "y" (Eq
-              (FApp "+" [Var "x", FApp "s" [Var "y"]])
-              (FApp "s" [FApp "+" [Var "x", Var "y"]])
+            FA "x" (FA "y" (Rel "="
+              [FApp "+" [Var "x", FApp "s" [Var "y"]]
+              ,FApp "s" [FApp "+" [Var "x", Var "y"]]]
               ))
           -- TODO PA_4
           -- TODO PA_5
@@ -89,12 +89,12 @@ l13 f = case f of
   _ -> False
 
 l14 f = case f of
-  Eq t1 t2 -> t1 == t2
+  Rel "=" [t1, t2] -> t1 == t2
   _ -> False
 
 l15 f = case f of
-  Imp (And (Eq tau1 tau1') (Eq tau2 tau2'))
-    (Imp (Eq _tau1 _tau2) (Eq _tau1' _tau2')) -> tau1 == _tau1 && tau1' == _tau1' && tau2 == _tau2 && tau2' == _tau2'
+  Imp (And (Rel "=" [tau1, tau1']) (Rel "=" [tau2, tau2']))
+    (Imp (Rel "=" [_tau1, _tau2]) (Rel "=" [_tau1', _tau2'])) -> tau1 == _tau1 && tau1' == _tau1' && tau2 == _tau2 && tau2' == _tau2'
   Imp f' (Imp (Rel r1 args1) (Rel r2 args2)) ->
     case (do (taus, taus') <- lhsToEquals f'
              return $ r1 == r2 && args1 == taus && args2 == taus') of
@@ -103,23 +103,22 @@ l15 f = case f of
   _ -> False
 
 l16 f = case f of
-  Imp f' (Eq (FApp f1 args1) (FApp f2 args2)) ->
+  Imp f' (Rel "=" [FApp f1 args1, FApp f2 args2]) ->
     case (do (taus, taus') <- lhsToEquals f'
              return $ f1 == f2 && args1 == taus && args2 == taus') of
       Just  b -> b
       Nothing -> False
-    where
-        _                      -> Nothing
   _ -> False
 
 
 lhsToEquals :: Formula -> Maybe ([Term], [Term])
 lhsToEquals f = case f of
-  Eq tau tau'            -> Just ([tau], [tau'])
-  And rest (Eq tau tau') -> do (taus, taus') <- lhsToEquals rest
-                               return (tau:taus, tau':taus')
-  And (Eq tau tau') rest -> do (taus, taus') <- lhsToEquals rest
-                               return (tau:taus, tau':taus')
+  Rel "=" [tau, tau'] -> Just ([tau], [tau'])
+  And rest (Rel "=" [tau, tau']) -> do (taus, taus') <- lhsToEquals rest
+                                       return (tau:taus, tau':taus')
+  And (Rel "=" [tau, tau']) rest -> do (taus, taus') <- lhsToEquals rest
+                                       return (tau:taus, tau':taus')
+  _ -> Nothing
 
 logicalAxiom :: Formula -> Bool
 logicalAxiom f = foldr (\l b -> b || l f) False [ l1

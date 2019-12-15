@@ -30,16 +30,16 @@ miscTests = do
         property $ \phi -> Correct == checkProof [phi] [phi] 
 
       it "A = B -> C = D, A = B |- C = D" $
-        checkProof [ Imp (Eq (Const "A") (Const "B")) (Eq (Const "C") (Const "D")) -- A = B -> C = D
-                   , Eq (Const "A") (Const "B")                                    -- A = B
+        checkProof [ Imp (Rel "=" [Const "A", Const "B"]) (Rel "=" [Const "C", Const "D"]) -- A = B -> C = D
+                   , Rel "=" [Const "A", Const "B"]                                    -- A = B
                    ]
-                   (reverse [ Imp (Eq (Const "A") (Const "B")) (Eq (Const "C") (Const "D")) -- A = B -> C = D
-                   , Eq (Const "A") (Const "B")                                    -- A = B
-                   , Eq (Const "C") (Const "D")                                    -- C = D
+                   (reverse [ Imp (Rel "=" [Const "A", Const "B"]) (Rel "=" [Const "C", Const "D"]) -- A = B -> C = D
+                   , Rel "=" [Const "A", Const "B"]                                    -- A = B
+                   , Rel "=" [Const "C", Const "D"]                                    -- C = D
                    ]) `shouldBe` Correct
 
       it "|- t1 = t2" $
-        property $ \t1 -> checkProof [] [Eq t1 t1] == Correct
+        property $ \t1 -> checkProof [] [Rel "=" [t1, t1]] == Correct
 
       it "φ -> ψ, φ |- ψ" $
         property $ \phi psi -> checkProof [Imp phi psi, phi] (reverse [Imp phi psi, phi, psi]) == Correct

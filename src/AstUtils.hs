@@ -17,7 +17,6 @@ getConstants t = case t of
 
 freeF :: Formula -> Set.Set Symbol
 freeF f = case f of
-  Eq t1 t2 -> freeT t1 `Set.union` freeT t2
   And f1 f2 -> freeF f1 `Set.union` freeF f2
   Or f1 f2 -> freeF f1 `Set.union` freeF f2
   Imp f1 f2 -> freeF f1 `Set.union` freeF f2
@@ -34,7 +33,6 @@ freeT t = case t of
 
 substF :: Symbol -> Term -> Formula -> Formula
 substF x t f = case f of
-  Eq l r     -> Eq (substT x t l) (substT x t r)
   Rel r args -> Rel r $ map (substT x t) args
   FA y f'    -> if y == x then f else FA y (substF x t f')
   EX y f'    -> if y == x then f else EX y (substF x t f')
@@ -57,12 +55,10 @@ findTau x f1 f2 = case (f1, f2) of
                                    | otherwise        -> Nothing
   (EX y f1', EX z f2')       -> if | y == z && y /= x -> findTau x f1' f2'
                                    | otherwise        -> Nothing
-  (Eq t11 t12, Eq t21 t22)   -> if | t11 == (Var x)   -> Just t21
-                                   | t12 == (Var x)   -> Just t22
-                                   | otherwise        -> let taus = Data.Maybe.catMaybes [findTauT x t11 t21, findTauT x t12 t22]
-                                                       in
-                                                       if | null taus -> Nothing
-                                                          | otherwise -> Just (head taus)
+  (Rel r1 args1, Rel r2 args2) -> if | r1 == r2 ->  let taus = Data.Maybe.catMaybes (zipWith (\a1 a2 -> findTauT x a1 a2) args1 args2)
+                                                    in
+                                                    if | null taus -> Nothing
+                                                       | otherwise -> Just (head taus)
   (And f11 f12, And f21 f22) -> let taus = Data.Maybe.catMaybes [findTau x f11 f21, findTau x f12 f22]
                                 in
                                 if | null taus -> Nothing
