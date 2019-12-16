@@ -18,9 +18,9 @@ def = emptyDef { commentStart = "--"
                , commentEnd = "\n"
                , identStart = alphaNum
                , identLetter = alphaNum
-               , opStart = oneOf "-∧∨=¬"
+               , opStart = oneOf "-∧∨=¬<"
                , opLetter = oneOf "~&=:"
-               , reservedOpNames = ["∧", "∨", "->", "¬", "="]
+               , reservedOpNames = ["∧", "∨", "->", "¬", "=", "<->"]
                , reservedNames = []
                }
 
@@ -43,6 +43,7 @@ formulaTable = [
           [ Infix (m_reservedOp "∧" >> return (\l -> \r -> And l r)) AssocRight]
         , [ Infix (m_reservedOp "∨" >> return (\l -> \r -> Or l r))  AssocRight]
         , [ Infix (m_reservedOp "->" >> return (\l -> \r -> Imp l r))  AssocRight]
+        , [ Infix (m_reservedOp "<->" >> return (\l -> \r -> And (Imp l r) (Imp r l))) AssocRight]
         ]
 
 parseOperand :: Signature -> Parser Formula
@@ -54,7 +55,7 @@ parseOperand sig = try (m_parens (parseFormula sig))
 
 parseRel :: Signature -> Parser Formula
 parseRel sig = do r <- m_identifier
-                  args <- (m_parens (m_commaSep (parseTerm sig)) <|> return [])
+                  args <- (try (m_parens (m_commaSep (parseTerm sig))) <|> return [])
                   return $ Rel r args
 
 parseNot :: Signature -> Parser Formula

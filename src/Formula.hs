@@ -23,5 +23,5 @@ instance Show Formula where
     EX v f1   -> "(∃" ++ v ++ "." ++ show f1 ++ ")"
     FA v f1   -> "(∀" ++ v ++ "." ++ show f1 ++ ")"
     Rel op [l,r] -> show l ++ " " ++ op ++ " " ++ show r
-    Rel op args -> show op ++ "(" ++ Data.List.intercalate "," (map show args) ++ ")"
+    Rel op args -> op ++ "(" ++ Data.List.intercalate "," (map show args) ++ ")"
 

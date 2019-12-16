@@ -23,6 +23,8 @@ proofTests = do
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
   example_1_2_broken  <- readFile "test/proofs/incorrect/example-1.2.proof"
+  example_1_1  <- readFile "test/proofs/correct/example-1.1.proof"
+  example_1_3  <- readFile "test/proofs/correct/example-1.3.proof"
   example_1_2_fixed  <- readFile "test/proofs/correct/example-1.2.proof"
   example_1_4  <- readFile "test/proofs/correct/example-1.4.proof"
   l1   <- readFile "test/proofs/correct/L1.proof"
@@ -124,23 +126,9 @@ proofTests = do
         let (_, ctxt, proof) = parse l10
         checkProof ctxt proof `shouldBe` Correct
 
-      {- Example 1.1
-
-         (φ → ((φ → φ) → φ)) → ((φ → (φ → φ)) → (φ → φ))
-         φ -> ((φ -> φ) -> φ)
-         (φ -> (φ -> φ)) -> (φ -> φ)
-         φ -> (φ -> φ)
-         φ -> φ
-      -}
-      let example_1_1 phi = reverse [ Imp (Imp phi (Imp (Imp phi phi) phi)) (Imp (Imp phi (Imp phi phi)) (Imp phi phi))
-                                    , Imp phi (Imp (Imp phi phi) phi)
-                                    , Imp (Imp phi (Imp phi phi)) (Imp phi phi)
-                                    , Imp phi (Imp phi phi)
-                                    , Imp phi phi
-                                    ]
-
       it "example 1.1" $
-        property $ \phi -> checkProof [] (example_1_1 phi) == Correct
+        let (_, ctxt, proof) = (parse example_1_1) in
+        checkProof ctxt proof `shouldBe` Correct
 
       it "example 1.2 broken" $
         let (_, ctxt, proof) = (parse example_1_2_broken) in
@@ -153,21 +141,9 @@ proofTests = do
         let (_, ctxt, proof) = (parse example_1_2_fixed) in
         checkProof ctxt proof `shouldBe` Correct
 
-      {- Example 1.3
-
-        φ -> φ
-        (φ -> φ) -> ((φ <-> φ) -> (φ <-> φ))
-        (φ -> φ) -> (φ <-> φ)
-        φ <-> φ
-      -}
-      let example_1_3 phi = (reverse [ Imp phi phi  
-                                    , Imp (Imp phi phi) (Imp (Imp phi phi) (And (Imp phi phi) (Imp phi phi)))
-                                    , Imp (Imp phi phi) (And (Imp phi phi) (Imp phi phi))
-                                    , (And (Imp phi phi) (Imp phi phi))
-                                    ]) ++ example_1_1 phi
-
       it "example 1.3" $
-        property $ \phi -> checkProof [] (example_1_3 phi) == Correct
+        let (_, ctxt, proof) = (parse example_1_3) in
+        checkProof ctxt proof `shouldBe` Correct
 
       it "example 1.4" $
         let (_, ctxt, proof) = parse example_1_4 in
