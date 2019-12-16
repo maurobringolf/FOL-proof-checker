@@ -28,6 +28,10 @@ ctxt_PA = [ -- PA_0: ¬∃x(s(x) = 0)
           -- TODO PA_6
           ]
 
+l0 f = case f of
+  Or f1 (Not f2) -> f1 == f2
+  _ -> False
+
 l1 f = case f of
   Imp f1 (Imp f2 f3) -> f1 == f3 
   _ -> False
@@ -119,7 +123,8 @@ lhsToEquals f = case f of
   _ -> Nothing
 
 logicalAxiom :: Formula -> Bool
-logicalAxiom f = foldr (\l b -> b || l f) False [ l1
+logicalAxiom f = foldr (\l b -> b || l f) False [ l0
+                                                , l1
                                                 , l2
                                                 , l3
                                                 , l4

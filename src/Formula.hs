@@ -3,6 +3,8 @@ module Formula where
 import Signature
 import Term
 
+import Data.List(intercalate)
+
 data Formula = Rel Symbol [Term]
              | Not Formula
              | And Formula Formula
@@ -21,4 +23,5 @@ instance Show Formula where
     EX v f1   -> "(∃" ++ v ++ "." ++ show f1 ++ ")"
     FA v f1   -> "(∀" ++ v ++ "." ++ show f1 ++ ")"
     Rel op [l,r] -> show l ++ " " ++ op ++ " " ++ show r
+    Rel op args -> show op ++ "(" ++ Data.List.intercalate "," (map show args) ++ ")"
 

@@ -47,9 +47,15 @@ formulaTable = [
 
 parseOperand :: Signature -> Parser Formula
 parseOperand sig = try (m_parens (parseFormula sig))
+               <|> try (parseEq sig)
+               <|> try (parseRel sig)
                <|> (parseNot sig)
                <|> (parseFA sig)
-               <|> (parseEq sig)
+
+parseRel :: Signature -> Parser Formula
+parseRel sig = do r <- m_identifier
+                  args <- (m_parens (m_commaSep (parseTerm sig)) <|> return [])
+                  return $ Rel r args
 
 parseNot :: Signature -> Parser Formula
 parseNot sig = do m_symbol "¬"

@@ -24,6 +24,7 @@ proofTests = do
   justOr  <- readFile "test/proofs/correct/just-or.proof"
   example_1_2_broken  <- readFile "test/proofs/incorrect/example-1.2.proof"
   example_1_2_fixed  <- readFile "test/proofs/correct/example-1.2.proof"
+  example_1_4  <- readFile "test/proofs/correct/example-1.4.proof"
   l1   <- readFile "test/proofs/correct/L1.proof"
   l2   <- readFile "test/proofs/correct/L2.proof"
   l3   <- readFile "test/proofs/correct/L3.proof"
@@ -141,6 +142,17 @@ proofTests = do
       it "example 1.1" $
         property $ \phi -> checkProof [] (example_1_1 phi) == Correct
 
+      it "example 1.2 broken" $
+        let (_, ctxt, proof) = (parse example_1_2_broken) in
+        (case (checkProof ctxt proof) of
+          Correct -> False
+          Incorrect _ _ -> True
+        ) `shouldBe` True
+
+      it "example 1.2 fixed" $
+        let (_, ctxt, proof) = (parse example_1_2_fixed) in
+        checkProof ctxt proof `shouldBe` Correct
+
       {- Example 1.3
 
         φ -> φ
@@ -154,17 +166,10 @@ proofTests = do
                                     , (And (Imp phi phi) (Imp phi phi))
                                     ]) ++ example_1_1 phi
 
-      it "example 1.2 broken" $
-        let (_, ctxt, proof) = (parse example_1_2_broken) in
-        (case (checkProof ctxt proof) of
-          Correct -> False
-          Incorrect _ _ -> True
-        ) `shouldBe` True
-
-      it "example 1.2 fixed" $
-        let (_, ctxt, proof) = (parse example_1_2_fixed) in
-        checkProof ctxt proof `shouldBe` Correct
-
       it "example 1.3" $
         property $ \phi -> checkProof [] (example_1_3 phi) == Correct
+
+      it "example 1.4" $
+        let (_, ctxt, proof) = parse example_1_4 in
+        checkProof ctxt proof `shouldBe` Correct
 
