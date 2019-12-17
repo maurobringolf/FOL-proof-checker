@@ -1,5 +1,5 @@
-# first-order-logic
+# FOL proof checker
 
-![](https://github.com/maurobringolf/first-order-logic/workflows/CI/badge.svg)
+![](https://github.com/maurobringolf/FOL-proof-checker/workflows/CI/badge.svg)
 
 A proof checker for a proof calculus of first order logic.

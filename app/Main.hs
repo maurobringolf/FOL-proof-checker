@@ -20,5 +20,5 @@ run [file] = do text <- readFile file
                   exitWith (ExitFailure 1)
 run _      = usage   >> exitWith ExitSuccess
 
-usage   = putStrLn "Usage: fol-proof-checker [-vh] [file]"
-version = putStrLn "fol-proof-checker 1.0.0"
+usage   = putStrLn "Usage: FOL-proof-checker [-vh] [file]"
+version = putStrLn "FOL-proof-checker 0.1.0.0"

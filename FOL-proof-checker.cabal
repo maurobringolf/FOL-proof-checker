@@ -1,0 +1,82 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.33.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 8c7ab6f93f0c5fe63463d58b4d64ccd4368d1d723654878e4de7734e23ad7aca
+
+name:           FOL-proof-checker
+version:        0.1.0.0
+description:    Please see the README on GitHub at <https://github.com/githubuser/FOL-proof-checker#readme>
+homepage:       https://github.com/githubuser/FOL-proof-checker#readme
+bug-reports:    https://github.com/githubuser/FOL-proof-checker/issues
+author:         Author name here
+maintainer:     example@example.com
+copyright:      2019 Author name here
+license:        BSD3
+license-file:   LICENSE
+build-type:     Simple
+extra-source-files:
+    README.md
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/FOL-proof-checker
+
+library
+  exposed-modules:
+      AstUtils
+      Formula
+      Parser
+      Proof
+      Signature
+      Term
+  other-modules:
+      Paths_FOL_proof_checker
+  hs-source-dirs:
+      src
+  build-depends:
+      QuickCheck
+    , base >=4.7 && <5
+    , containers
+    , hspec
+    , parsec
+  default-language: Haskell2010
+
+executable FOL-proof-checker-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_FOL_proof_checker
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      FOL-proof-checker
+    , QuickCheck
+    , base >=4.7 && <5
+    , containers
+    , hspec
+    , parsec
+  default-language: Haskell2010
+
+test-suite FOL-proof-checker-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+      MiscSpec
+      ParserSpec
+      ProofSpec
+      TestUtils
+      Paths_FOL_proof_checker
+  hs-source-dirs:
+      test
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      FOL-proof-checker
+    , QuickCheck
+    , base >=4.7 && <5
+    , containers
+    , hspec
+    , parsec
+  default-language: Haskell2010
