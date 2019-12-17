@@ -8,6 +8,21 @@ import Term
 
 import qualified Data.Char(isAsciiLower, isUpper)
 
+infixr 5 ∧
+(∧) = And
+
+infixr 4 ∨
+(∨) = Or
+
+infixr 3 →
+(→) = Imp
+
+infixr 6 ≡
+(≡) τ σ = Rel "=" [τ, σ]
+
+c = Const
+v = Var
+
 instance Arbitrary Formula where
   arbitrary = do n <- getSize
                  oneof $ [ generateEq ] ++ (if n > 0 then [generateFA, generateEX , generateNot, generateAnd ,generateOr, generateImp ] else [])

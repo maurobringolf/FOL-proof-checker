@@ -14,20 +14,6 @@ data Formula = Rel Symbol [Term]
              | FA Symbol Formula
   deriving (Eq)
 
-infixr 5 ∧
-(∧) = And
-
-infixr 4 ∨
-(∨) = Or
-
-infixr 3 →
-(→) = Imp
-
-infixr 6 ≡
-(≡) τ σ = Rel "=" [τ, σ]
-
-c = Const
-v = Var
 
 instance Show Formula where
   show f = case f of
