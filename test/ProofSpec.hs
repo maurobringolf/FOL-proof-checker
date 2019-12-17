@@ -59,14 +59,14 @@ proofTests = do
         case checkProof ctxt proof of
           Incorrect _ f -> Just f
           Correct -> Nothing
-        `shouldBe` Just (Rel "=" [Var "x", Var "y"])
+        `shouldBe` Just (Var "x" ≡ Var "y")
 
       it "just eq" $ do
         let (_, ctxt, proof) = parse fAppEq
         case checkProof ctxt proof of
           Incorrect _ f -> Just f
           Correct -> Nothing
-        `shouldBe` Just (Rel "=" [FApp "f" [Const "0"], FApp "g" [Const "1"]])
+        `shouldBe` Just (FApp "f" [Const "0"] ≡ FApp "g" [Const "1"])
 
       -- Check all the axioms
       it "L1" $ do
@@ -112,11 +112,11 @@ proofTests = do
         property $ \t -> substF "x" t (FA "z" (Rel "=" [Var "x", Var "y"])) == (FA "z" (Rel "=" [t, Var "y"])) 
 
       it "findTau 1" $ do
-        findTau "x" (Rel "=" [Var "x", Var "x"]) (Rel "=" [Const "1", Const "1"]) `shouldBe` Just (Const "1")
-        findTau "x" (FA "z" (Rel "=" [Var "x", Var "x"])) (Rel "=" [Const "1", Const "1"]) `shouldBe` Nothing
-        findTau "x" (FA "z" (Rel "=" [Var "x", Var "x"])) (FA "z" (Rel "=" [Const "1", Const "1"])) `shouldBe` Just (Const "1")
-        findTau "x" (FA "a" (Rel "=" [Var "x", Var "x"])) (FA "z" (Rel "=" [Const "1", Const "1"])) `shouldBe` Nothing
-        findTau "x" (And (Rel "=" [Var "x", Var "x"]) (Rel "=" [Var "x", Var "x"])) (And (Rel "=" [Const "1", Const "1"]) (Rel "=" [Const "1", Const "1"])) `shouldBe` Just (Const "1")
+        findTau "x" (v "x" ≡ v "x") (c "1" ≡ c "1") `shouldBe` Just (c "1")
+        findTau "x" (FA "z" (v "x" ≡ v "x")) (c "1" ≡ c "1") `shouldBe` Nothing
+        findTau "x" (FA "z" (v "x" ≡ v "x")) (FA "z" (c "1" ≡ c "1")) `shouldBe` Just (c "1")
+        findTau "x" (FA "a" (v "x" ≡ v "x")) (FA "z" (c "1" ≡ c "1")) `shouldBe` Nothing
+        findTau "x" (v "x" ≡ v "x" ∧ v "x" ≡ v "x") (c "1" ≡ c "1" ∧ c "1" ≡ c "1") `shouldBe` Just (Const "1")
 
       it "findTau 2" $ do
         property $ \t f -> not (null (freeF f)) ==> let x = Data.Maybe.fromJust (Set.lookupGT "" (freeF f)) in
