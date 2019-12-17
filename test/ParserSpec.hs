@@ -43,9 +43,10 @@ parseTests = do
         parse fAppEq `shouldBe` (sig_empty { constants = ["0", "1"] }, [], [Rel "=" [FApp "f" [Const "0"], FApp "g" [Const "1"]]])
 
       it ("parse L9.proof") $ do
-        parse l9 `shouldBe` (sig_empty, [], [
+        parse l9 `shouldBe` (sig_empty, [], reverse [
         -- ¬(x = x) -> x = x -> x = y
-          Imp (Not (Rel "=" [Var "x", Var "x"])) (Imp (Rel "=" [Var "x", Var "x"]) (Rel "=" [Var "x", Var "y"]))
+          Imp (Not (Rel "=" [Var "x", Var "x"])) (Imp (Rel "=" [Var "x", Var "x"]) (Rel "=" [Var "x", Var "y"])),
+          Imp (Not (Rel "φ" [])) (Imp (Rel "φ" []) (Rel "ψ" []))
           ])
 
       it ("parse just-and.proof") $ do
