@@ -174,6 +174,15 @@ instance Eq Result where
   (==) (Incorrect _ _) (Incorrect _ _) = True
   (==) _ _ = False
 
+byModusPonens :: Proof -> Formula -> Bool
+byModusPonens phi_before phi = any (\(phi1, phi2) -> phi1 == Imp phi2 phi) [(phi1, phi2) | phi1 <- phi_before, phi2 <- phi_before]
+
+byGeneralisation :: Proof -> Formula -> Bool
+byGeneralisation phi_before f = case f of
+  FA x f' -> f' `elem` phi_before
+  _       -> False
+
+
 -- NOTE: `proof` is in reverse order, i.e. `head proof` is the proven formula
 checkProof :: Context -> Proof -> Result
 checkProof nonLogicalAxioms proof = if null proof then Correct else
@@ -181,7 +190,8 @@ checkProof nonLogicalAxioms proof = if null proof then Correct else
       phi_before = tail proof
   in
     if (any (isInstanceOf phi) (logicalAxioms ++ nonLogicalAxioms) ||
-    any (\(phi1, phi2) -> phi1 == Imp phi2 phi) [(phi1, phi2) | phi1 <- phi_before, phi2 <- phi_before])
+        byModusPonens phi_before phi ||
+        byGeneralisation phi_before phi)
     then
       checkProof nonLogicalAxioms phi_before
     else
