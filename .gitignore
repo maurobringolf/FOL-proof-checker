@@ -1,3 +1,5 @@
 .stack-work/
 first-order-logic.cabal
 *~
+*.log
+*.aux

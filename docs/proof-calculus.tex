@@ -1,0 +1,53 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{proof}
+
+\renewcommand{\phi}{\varphi}
+\newcommand{\ra}{\rightarrow}
+
+\begin{document}
+
+\section{Axioms}
+
+\begin{itemize}
+	\item $L_0: \phi \lor \lnot \phi$
+	\item $L_1: \phi \ra (\psi \ra \phi)$
+	\item $L_2: (\psi \ra (\phi_1 \ra \phi_2)) \ra
+	((\psi \ra \phi_1) \ra (\psi \ra \phi_2))$
+	\item $L_3: (\phi \land \psi) \ra \phi$
+	\item $L_4: (\phi \land \psi) \ra \psi$
+	\item $L_5: \phi \ra (\psi \ra (\psi \land \phi))$
+	\item $L_6: \phi \ra (\phi \lor \psi)$
+	\item $L_7: \psi \ra (\phi \lor \psi)$
+	\item $L_8: (\phi_1 \ra \phi_3) \ra
+	((\phi_2 \ra \phi_3) \ra ((\phi_1 \lor \phi_2) \ra \phi_3))$
+	\item $L_9: \lnot \phi \ra (\phi \ra \psi)$
+	\item $L_{10}: \forall \nu \phi(\nu) \ra \phi(\tau)$
+	\item $L_{11}: \phi(\tau) \ra \exists \nu \phi(\nu)$
+	\item $L_{12}$: If $\nu \not \in free(\psi)$, then
+$\forall \nu (\psi \ra \phi(\nu)) \ra (\psi \ra \forall \nu \phi(\nu))$
+	\item $L_{13}$: If $\nu \not \in free(\psi)$, then
+$\forall \nu (\phi(\nu) \ra \psi) \ra (\exists \nu \phi(\nu) \ra \psi)$
+	\item $L_{14}: \tau = \tau$
+	\item $L_{15}: (\tau_1 = \tau_1' \land \ldots \land \tau_n = \tau_n') \ra
+	R(\tau_1, \ldots, \tau_n) \ra R(\tau_1', \ldots, \tau_n')$
+	\item $L_{16}: (\tau_1 = \tau_1' \land \ldots \land \tau_n = \tau_n') \ra
+	F(\tau_1, \ldots, \tau_n) = F(\tau_1', \ldots, \tau_n')$
+
+\end{itemize}
+
+\section{Inference rules}
+
+$$
+\infer[\text{Modus Ponens (MP)}] {\psi} {\phi \ra \psi \quad \phi}
+$$
+
+$$
+\infer[\text{Generalisation ($\forall$) *}] {\forall \nu \phi} {\phi}
+$$
+
+* if $\nu$ does not occur free in any non-logical axiom.
+
+\end{document}
+

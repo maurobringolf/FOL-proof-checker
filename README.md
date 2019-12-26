@@ -4,6 +4,13 @@
 
 A proof checker for a proof calculus of first order logic.
 
+This program reads formal proofs in the language of **first order logic (FOL)** and checks them for correctness.
+I developed this for fun and educational purposes only, but am nevertheless open to contributions or advice.
+
+## Proof calculus
+
+The axioms and inference rules can be found under [docs/proof-calculus.pdf](docs/proof-calculus.pdf).
+
 ## CLI interface
 
 The CLI program takes as input a path to a text file containing a proof,
@@ -17,6 +24,3 @@ stack build
 stack exec FOL-proof-checker-exe path/to/some-proof.txt
 ```
 
-## Contribution
-
-I am open to contributions, feel free to open an issue or submit a pull request.
