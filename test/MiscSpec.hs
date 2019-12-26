@@ -27,12 +27,12 @@ miscTests = do
         property $ \s -> wf_term (sig_empty {constants = [s]} ) (c s)
 
       it "φ |- φ" $
-        property $ \phi -> Correct == checkProof [phi] [phi] 
+        property $ \phi -> Correct == checkProof [Literal phi] [phi] 
 
       it "A = B -> C = D, A = B |- C = D" $
-        checkProof [ c "A" ≡ c "B" → c "C" ≡ c "D"
+        checkProof (map Literal [ c "A" ≡ c "B" → c "C" ≡ c "D"
                    , c "A" ≡ c "B"
-                   ]
+                   ])
                    (reverse [
                      c "A" ≡ c "B" → c "C" ≡ c "D"
                    , c "A" ≡ c "B"
@@ -43,7 +43,7 @@ miscTests = do
         property $ \t -> checkProof [] [t ≡ t] == Correct
 
       it "φ -> ψ, φ |- ψ" $
-        property $ \phi psi -> checkProof [Imp phi psi, phi] (reverse [Imp phi psi, phi, psi]) == Correct
+        property $ \phi psi -> checkProof (map Literal [Imp phi psi, phi]) (reverse [Imp phi psi, phi, psi]) == Correct
 
 
   parseTests

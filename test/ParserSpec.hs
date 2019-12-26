@@ -15,6 +15,14 @@ import TestUtils
 import Data.Char(isAsciiLower)
 import Data.List(intercalate)
 
+instance Show Axiom where
+  show (Literal f) = show f
+  show (Schema _)  = "Cannot show Axiomschema"
+
+instance Eq Axiom where
+  (Literal f1) == (Literal f2) = f1 == f2
+  _ == _ = False
+
 parseTests :: IO ()
 parseTests = do
   simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
@@ -28,7 +36,7 @@ parseTests = do
     describe "Parser tests" $ do
       it ("parse simple-modus-ponens.proof") $ do
         parse simpleMP `shouldBe` ( sig_empty { constants = ["A", "B", "C", "D"]}
-                                  , [c "A" ≡ c "B" → c "C" ≡ c "D"
+                                  , map Literal [c "A" ≡ c "B" → c "C" ≡ c "D"
                                     , c "A" ≡ c "B"
                                     ]
                                   , [ c "C" ≡ c "D"

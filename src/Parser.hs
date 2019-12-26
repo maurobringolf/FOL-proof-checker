@@ -109,7 +109,8 @@ parseSignature = try parseDetailedSignature
              <|> return sig_empty
 
 parseContext :: Signature -> Parser Context
-parseContext sig = many (parseFormula sig)
+parseContext sig = do axs <- many (parseFormula sig)
+                      return $ map Literal axs
 
 parseProof :: Signature -> Parser Proof
 parseProof sig = do fs <- many (parseFormula sig)

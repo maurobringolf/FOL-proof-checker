@@ -1,4 +1,3 @@
-
 module Proof where
 
 import Signature
@@ -6,26 +5,47 @@ import Term
 import Formula
 import AstUtils
 
-
 type Proof = [Formula]
 
-type Context = [Formula]
+data Axiom = Literal Formula | Schema (Formula -> Bool)
+
+isInstanceOf :: Formula -> Axiom -> Bool
+f `isInstanceOf` ax = case ax of
+  Literal f' -> f' == f
+  Schema f'  -> f' f
+
+type Context = [Axiom]
 
 ctxt_PA :: Context
 ctxt_PA = [ -- PA_0: ¬∃x(s(x) = 0)
-            Not (EX "x" (Rel "=" [FApp "s" [Var "x"], (Const "0")]))
+            Literal $ Not (EX "x" (Rel "=" [FApp "s" [Var "x"], (Const "0")]))
           , -- PA_1: ∀x∀y(s(x) = s(y) -> x = y)
-            FA "x" (FA "y" (Imp (Rel "=" [FApp "s" [Var "x"], FApp "s" [Var "y"]]) (Rel "=" [Var "x", Var "y"])))
+            Literal $ FA "x" (FA "y" (Imp (Rel "=" [FApp "s" [Var "x"], FApp "s" [Var "y"]]) (Rel "=" [Var "x", Var "y"])))
           , -- PA_2: ∀x(x + 0 = x)
-            FA "x" (Rel "=" [FApp "+" [Var "x", Const "0"], Var "x"])
+            Literal $ FA "x" (Rel "=" [FApp "+" [Var "x", Const "0"], Var "x"])
           , -- PA_3: ∀x∀y(x + s(y) = s(x + y))
-            FA "x" (FA "y" (Rel "="
+            Literal $ FA "x" (FA "y" (Rel "="
               [FApp "+" [Var "x", FApp "s" [Var "y"]]
               ,FApp "s" [FApp "+" [Var "x", Var "y"]]]
               ))
-          -- TODO PA_4
-          -- TODO PA_5
-          -- TODO PA_6
+          , -- PA_4: ∀x(x * 0 = 0)
+            Literal $ FA "x" (Rel "="
+              [ FApp "*" [Var "x", Const "0"]
+              , Const "0"
+              ])
+          , -- PA_5: ∀x∀y(x * s(y) = (x*y) + x)
+            Literal $ FA "x" (FA "y" (Rel "="
+              [ FApp "*" [Var "x", FApp "s" [Var "y"]]
+              , FApp "+" [FApp "*" [Var "x", Var "y"], Var "x"]
+              ]))
+          , -- PA_6: If x ∈ free(φ) then (φ(0) ∧ ∀x(φ(x) -> φ(s(x)))) -> ∀xφ(x)
+            Schema (\f -> case f of
+              Imp (And f1 (FA x1 (Imp f2 f3))) (FA x2 f4) -> x1 == x2
+                                                             && x1 `elem` freeF f4
+                                                             && f2 == f4
+                                                             && f1 == substF x1 (Const "0") f4
+                                                             && f3 == substF x1 (FApp "s" [Var x1]) f4
+              _ -> False)
           ]
 
 l0 f = case f of
@@ -122,32 +142,32 @@ lhsToEquals f = case f of
                                        return (tau:taus, tau':taus')
   _ -> Nothing
 
-logicalAxiom :: Formula -> Bool
-logicalAxiom f = foldr (\l b -> b || l f) False [ l0
-                                                , l1
-                                                , l2
-                                                , l3
-                                                , l4
-                                                , l5
-                                                , l6
-                                                , l7
-                                                , l8
-                                                , l9
-                                                , l10
-                                                , l11
-                                                , l12
-                                                , l13
-                                                , l14
-                                                , l15
-                                                , l16
-                                                ]
+logicalAxioms :: Context
+logicalAxioms = map Schema [ l0
+                           , l1
+                           , l2
+                           , l3
+                           , l4
+                           , l5
+                           , l6
+                           , l7
+                           , l8
+                           , l9
+                           , l10
+                           , l11
+                           , l12
+                           , l13
+                           , l14
+                           , l15
+                           , l16
+                           ]
 
 data Result = Correct
             | Incorrect Context Formula
 
 instance Show Result where
   show Correct = "Correct"
-  show (Incorrect phis phi) = "Incorrect step: \n" ++ show phis ++ "\nto\n" ++ show phi
+  show (Incorrect phis phi) = "Incorrect. Cannot infer: \n" ++ show phi
 
 instance Eq Result where
   (==) Correct Correct = True
@@ -156,15 +176,14 @@ instance Eq Result where
 
 -- NOTE: `proof` is in reverse order, i.e. `head proof` is the proven formula
 checkProof :: Context -> Proof -> Result
-checkProof axioms proof = if null proof then Correct else
+checkProof nonLogicalAxioms proof = if null proof then Correct else
   let phi = head proof
       phi_before = tail proof
   in
-    if (logicalAxiom phi ||
-    phi `elem` axioms ||
+    if (any (isInstanceOf phi) (logicalAxioms ++ nonLogicalAxioms) ||
     any (\(phi1, phi2) -> phi1 == Imp phi2 phi) [(phi1, phi2) | phi1 <- phi_before, phi2 <- phi_before])
     then
-      checkProof axioms phi_before
+      checkProof nonLogicalAxioms phi_before
     else
-      Incorrect phi_before phi
+      Incorrect nonLogicalAxioms phi
 
