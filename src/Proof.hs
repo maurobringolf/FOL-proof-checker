@@ -104,12 +104,18 @@ l11 f = case f of
     Just t  -> substF x t f2 == f1
   _ -> False
 
--- TODO
 l12 f = case f of
+  Imp (FA x1 (Imp f1 f2)) (Imp f3 (FA x2 f4)) -> x1 == x2 &&
+                                                 f1 == f3 &&
+                                                 f2 == f4 &&
+                                                 not (x1 `elem` freeF f1)
   _ -> False
 
--- TODO
 l13 f = case f of
+  Imp (FA x1 (Imp f1 f2)) (Imp (EX x2 f3) f4)  -> x1 == x2 &&
+                                                 f1 == f3 &&
+                                                 f2 == f4 &&
+                                                 not (x1 `elem` freeF f2)
   _ -> False
 
 l14 f = case f of
