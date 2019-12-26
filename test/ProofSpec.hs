@@ -21,6 +21,7 @@ proofTests = do
 
   simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
   generalisation <- readFile "test/proofs/correct/generalisation.proof"
+  incorrect_generalisation <- readFile "test/proofs/incorrect/generalisation.proof"
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
   example_1_2_broken  <- readFile "test/proofs/incorrect/example-1.2.proof"
@@ -50,6 +51,13 @@ proofTests = do
       it "generalisation" $ do
         let (_, ctxt, proof) = parse generalisation
         checkProof ctxt proof `shouldBe` Correct
+
+      it "incorrect generalisation" $
+        let (_, ctxt, proof) = (parse incorrect_generalisation) in
+        (case (checkProof ctxt proof) of
+          Correct -> False
+          Incorrect _ _ -> True
+        ) `shouldBe` True
 
       it "just and" $ do
         let (_, ctxt, proof) = parse justAnd
