@@ -29,6 +29,8 @@ proofTests = do
   example_1_3  <- readFile "test/proofs/correct/example-1.3.proof"
   example_1_2_fixed  <- readFile "test/proofs/correct/example-1.2.proof"
   example_1_4  <- readFile "test/proofs/correct/example-1.4.proof"
+  l0   <- readFile "test/proofs/correct/L0.proof"
+  l0_incorrect   <- readFile "test/proofs/incorrect/L0.proof"
   l1   <- readFile "test/proofs/correct/L1.proof"
   l2   <- readFile "test/proofs/correct/L2.proof"
   l3   <- readFile "test/proofs/correct/L3.proof"
@@ -82,6 +84,17 @@ proofTests = do
         `shouldBe` Just (FApp "f" [Const "0"] ≡ FApp "g" [Const "1"])
 
       -- Check all the axioms
+      it "L0" $ do
+        let (_, ctxt, proof) = parse l0
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "L0_incorrect" $ do
+        let (_, ctxt, proof) = parse l0_incorrect
+        (case (checkProof ctxt proof) of
+          Correct -> False
+          Incorrect _ _ -> True
+          ) `shouldBe` True
+
       it "L1" $ do
         let (_, ctxt, proof) = parse l1
         checkProof ctxt proof `shouldBe` Correct
