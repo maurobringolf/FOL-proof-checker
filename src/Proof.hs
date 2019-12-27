@@ -43,7 +43,7 @@ ctxt_PA = [ -- PA_0: ¬∃x(s(x) = 0)
           , -- PA_6: If x ∈ free(φ) then (φ(0) ∧ ∀x(φ(x) -> φ(s(x)))) -> ∀xφ(x)
             Schema (\f -> case f of
               Imp (And f1 (FA x1 (Imp f2 f3))) (FA x2 f4) -> x1 == x2
-                                                             && x1 `elem` freeF f4
+                                                             && Data.Set.singleton x1 == freeF f4
                                                              && f2 == f4
                                                              && f1 == substF x1 (Const "0") f4
                                                              && f3 == substF x1 (FApp "s" [Var x1]) f4
