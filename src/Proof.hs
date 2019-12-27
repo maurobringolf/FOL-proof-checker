@@ -5,6 +5,8 @@ import Term
 import Formula
 import AstUtils
 
+import qualified Data.Set
+
 type Proof = [Formula]
 
 data Axiom = Literal Formula | Schema (Formula -> Bool)
@@ -183,9 +185,12 @@ instance Eq Result where
 byModusPonens :: Proof -> Formula -> Bool
 byModusPonens phi_before phi = any (\(phi1, phi2) -> phi1 == Imp phi2 phi) [(phi1, phi2) | phi1 <- phi_before, phi2 <- phi_before]
 
-byGeneralisation :: Proof -> Formula -> Bool
-byGeneralisation phi_before f = case f of
-  FA x f' -> f' `elem` phi_before
+byGeneralisation :: Context -> Proof -> Formula -> Bool
+byGeneralisation nonLogicalAxioms phi_before f = case f of
+  FA x f' -> f' `elem` phi_before && not (any (Data.Set.member x) (map (\a -> case a of
+    Literal f'' -> freeF f''
+    Schema _    -> Data.Set.empty
+    ) nonLogicalAxioms))
   _       -> False
 
 
@@ -197,7 +202,7 @@ checkProof nonLogicalAxioms proof = if null proof then Correct else
   in
     if (any (isInstanceOf phi) (logicalAxioms ++ nonLogicalAxioms) ||
         byModusPonens phi_before phi ||
-        byGeneralisation phi_before phi)
+        byGeneralisation nonLogicalAxioms phi_before phi)
     then
       checkProof nonLogicalAxioms phi_before
     else
