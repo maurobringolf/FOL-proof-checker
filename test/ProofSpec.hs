@@ -21,6 +21,7 @@ proofTests = do
 
   simpleMP <- readFile "test/proofs/correct/simple-modus-ponens.proof"
   generalisation <- readFile "test/proofs/correct/generalisation.proof"
+  eq_trans <- readFile "test/proofs/correct/equality-transitive.proof"
   incorrect_generalisation <- readFile "test/proofs/incorrect/generalisation.proof"
   justAnd  <- readFile "test/proofs/correct/just-and.proof"
   justOr  <- readFile "test/proofs/correct/just-or.proof"
@@ -52,6 +53,10 @@ proofTests = do
 
       it "generalisation" $ do
         let (_, ctxt, proof) = parse generalisation
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "equality transitive" $ do
+        let (_, ctxt, proof) = parse eq_trans
         checkProof ctxt proof `shouldBe` Correct
 
       it "incorrect generalisation" $
