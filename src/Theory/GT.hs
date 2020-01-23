@@ -1,3 +1,13 @@
 module Theory.GT where
 
-axioms = []
+import Term
+import Formula
+import Context
+
+axioms :: Context
+axioms = [ -- GT_0 TODO
+           -- GT_1
+           Literal $ FA "x" (Rel "=" [FApp "∘" [Const "e", Var "x"], Var "x"])
+           -- GT_2 TODO
+         ]
+

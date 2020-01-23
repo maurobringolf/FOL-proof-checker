@@ -45,10 +45,21 @@ proofTests = do
   justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
 
+  gt_right_neutral <- readFile "test/proofs/correct/gt-right-neutral.proof"
+  gt_eee <- readFile "test/proofs/correct/gt-e-e-e.proof"
+
   hspec $ do
     describe "checkProof" $ do
       it "simple modus ponens" $ do
         let (_, ctxt, proof) = parse simpleMP
+        checkProof ctxt proof `shouldBe` Correct
+        
+      it "GT: right neutrality of e" $ do
+        let (_, ctxt, proof) = parse gt_right_neutral
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "GT: e ∘ e = e" $ do
+        let (_, ctxt, proof) = parse gt_eee
         checkProof ctxt proof `shouldBe` Correct
 
       it "generalisation" $ do
