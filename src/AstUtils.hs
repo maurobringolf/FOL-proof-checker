@@ -5,7 +5,6 @@ module AstUtils where
 import Signature
 import Term
 import Formula
-
 import Data.Maybe(catMaybes)
 import qualified Data.Set as Set
 
@@ -86,4 +85,13 @@ findTauT x t t' = case (t, t') of
                                                          | otherwise -> Just (head taus)
                                        | otherwise -> Nothing
   (_,_)              -> Nothing
+
+lhsToEquals :: Formula -> Maybe ([Term], [Term])
+lhsToEquals f = case f of
+  Rel "=" [tau, tau'] -> Just ([tau], [tau'])
+  And rest (Rel "=" [tau, tau']) -> do (taus, taus') <- lhsToEquals rest
+                                       return (taus ++ [tau], taus' ++ [tau'])
+  And (Rel "=" [tau, tau']) rest -> do (taus, taus') <- lhsToEquals rest
+                                       return (tau:taus, tau':taus')
+  _ -> Nothing
 

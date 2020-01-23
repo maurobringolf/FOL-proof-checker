@@ -9,6 +9,7 @@ import Signature
 import Term
 import Formula
 import Proof
+import Context
 
 import ParserSpec(parseTests)
 

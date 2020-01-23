@@ -9,6 +9,7 @@ import Formula
 import Proof
 import Parser
 import AstUtils
+import Context
 
 import TestUtils
 
