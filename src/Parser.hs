@@ -9,11 +9,14 @@ import Text.Parsec.Language
 
 import Data.Char(isUpper, isDigit)
 
-import Signature
+import Signature(Signature)
+import qualified Signature as Sig
 import Term
 import Formula
 import Proof
 import Context
+import qualified Theory.GT
+import qualified Theory.PA
 
 def = emptyDef { commentStart = "--"
                , commentEnd = "\n"
@@ -80,7 +83,7 @@ parseTerm :: Signature -> Parser Term
 parseTerm sig = parseExp sig
 
 parseExp :: Signature -> Parser Term
-parseExp sig = buildExpressionParser (map (\f -> [ Infix (m_symbol f >> return (\l -> \r -> FApp f [l, r])) AssocRight] ) (binary_functions sig)) (parseAtom sig) <?> "term"
+parseExp sig = buildExpressionParser (map (\f -> [ Infix (m_symbol f >> return (\l -> \r -> FApp f [l, r])) AssocRight] ) (Sig.binary_functions sig)) (parseAtom sig) <?> "term"
 
 parseAtom :: Signature -> Parser Term
 parseAtom sig = m_parens (parseTerm sig)
@@ -93,7 +96,7 @@ parseFApp sig = do f <- m_identifier
                    return $ FApp f args
 
 parseVarConst :: Signature -> Parser Term
-parseVarConst sig = let isConst c = c `elem` (constants sig)
+parseVarConst sig = let isConst c = c `elem` (Sig.constants sig)
                         varConst s = if isConst s then Const s else Var s
                     in
                     do s <- m_identifier
@@ -103,11 +106,11 @@ parseDetailedSignature :: Parser Signature
 parseDetailedSignature = do m_symbol "constants:"
                             cs <- m_commaSep m_identifier
                             -- TODO Do we need functions and relations?
-                            return $ sig_empty { constants = cs }
+                            return $ Sig.empty { Sig.constants = cs }
 
 parseSignature :: Parser Signature
 parseSignature = try parseDetailedSignature
-             <|> return sig_empty
+             <|> return Sig.empty
 
 parseContext :: Signature -> Parser Context
 parseContext sig = do axs <- many (parseFormula sig)
@@ -118,8 +121,8 @@ parseProof sig = do fs <- many (parseFormula sig)
                     return $ reverse fs
 
 parseTheory :: Parser (Signature, Context)
-parseTheory = m_symbol "#PA" >> return (sig_PA, ctxt_PA)
-                 
+parseTheory = do m_symbol "#"
+                 (m_symbol "PA" >> return (Sig.pa, Theory.PA.axioms)) <|> (m_symbol "GT" >> return (Sig.gt, Theory.GT.axioms))
 
 parsePreamble :: Parser (Signature, Context)
 parsePreamble = parseTheory

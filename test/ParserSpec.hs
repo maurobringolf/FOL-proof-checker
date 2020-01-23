@@ -3,7 +3,7 @@ module ParserSpec where
 import Test.Hspec
 import Test.QuickCheck
 
-import Signature
+import qualified Signature as Sig
 import Term
 import Formula
 import Proof
@@ -36,7 +36,7 @@ parseTests = do
   hspec $ do
     describe "Parser tests" $ do
       it ("parse simple-modus-ponens.proof") $ do
-        parse simpleMP `shouldBe` ( sig_empty { constants = ["A", "B", "C", "D"]}
+        parse simpleMP `shouldBe` (Sig.empty { Sig.constants = ["A", "B", "C", "D"]}
                                   , map Literal [c "A" ≡ c "B" → c "C" ≡ c "D"
                                     , c "A" ≡ c "B"
                                     ]
@@ -46,19 +46,19 @@ parseTests = do
                                     ])
 
       it ("parse just-equality.proof") $ do
-        parse justEq `shouldBe` (sig_empty, [], [v "x" ≡ v "y"])
+        parse justEq `shouldBe` (Sig.empty, [], [v "x" ≡ v "y"])
         
       it ("parse fapp-equality.proof") $ do
-        parse fAppEq `shouldBe` (sig_empty { constants = ["0", "1"] }, [], [FApp "f" [Const "0"] ≡ FApp "g" [Const "1"]])
+        parse fAppEq `shouldBe` (Sig.empty { Sig.constants = ["0", "1"] }, [], [FApp "f" [Const "0"] ≡ FApp "g" [Const "1"]])
 
       it ("parse L9.proof") $ do
-        parse l9 `shouldBe` (sig_empty, [], reverse [
+        parse l9 `shouldBe` (Sig.empty, [], reverse [
           Not (v "x" ≡ v "x") → v "x" ≡ v "x" → v "x" ≡ v "y" 
           , (Not (Rel "φ" [])) → (Rel "φ" []) → (Rel "ψ" [])
           ])
 
       it ("parse just-and.proof") $ do
-        parse justAnd `shouldBe` (sig_empty { constants = [ "1" ]}, [],
+        parse justAnd `shouldBe` (Sig.empty { Sig.constants = [ "1" ]}, [],
           [ c "1" ≡ c "1" ∧ c "1" ≡ c "1" 
           , c "1" ≡ c "1" → c "1" ≡ c "1" ∧ c "1" ≡ c "1"
           , c "1" ≡ c "1" → c "1" ≡ c "1" → c "1" ≡ c "1" ∧ c "1" ≡ c "1"
@@ -67,7 +67,7 @@ parseTests = do
 
       it ("parse just-or.proof") $ do
         let phi = Rel "=" [Const "1", Const "1"]
-        parse justOr `shouldBe` (sig_empty { constants = ["1"]}, [],
+        parse justOr `shouldBe` (Sig.empty { Sig.constants = ["1"]}, [],
           [ c "1" ≡ c "1" ∨ c "1" ≡ c "1" 
           , c "1" ≡ c "1" → c "1" ≡ c "1" ∨ c "1" ≡ c "1" 
           , c "1" ≡ c "1" 
@@ -76,6 +76,6 @@ parseTests = do
       it ("Can parse equality of any two terms") $ do
         property $ \t -> let cs = getConstants t in
             parse ("constants: " ++ Data.List.intercalate "," cs ++ " |- " ++ show t ++ " = " ++ show t) ==
-              (sig_empty {constants = cs}, [], [t ≡ t])
+              (Sig.empty {Sig.constants = cs}, [], [t ≡ t])
 
 

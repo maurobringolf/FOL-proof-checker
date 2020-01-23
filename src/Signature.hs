@@ -8,17 +8,24 @@ data Signature = Signature { constants :: [Symbol]
                            , relations :: [(Symbol, Int)]
 } deriving (Eq, Show)
 
-sig_empty :: Signature
-sig_empty = Signature { constants = []
-                      , functions = []
-                      , binary_functions = []
-                      , relations = []
+empty :: Signature
+empty = Signature { constants = []
+                  , functions = []
+                  , binary_functions = []
+                  , relations = []
 }
 
-sig_PA :: Signature
-sig_PA = Signature { constants = [ "0" ]
-                   , functions = [ ("s", 1), ("(+)", 2) ]
-                   , binary_functions = ["+"]
-                   , relations = []
+pa :: Signature
+pa = Signature { constants = [ "0" ]
+               , functions = [ ("s", 1), ("(+)", 2) ]
+               , binary_functions = [ "+" ]
+               , relations = []
+}
+
+gt :: Signature
+gt = Signature { constants = [ "e" ]
+               , functions = []
+               , binary_functions = [ "∘" ]
+               , relations = []
 }
 
