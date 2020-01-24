@@ -1,3 +1,8 @@
 #GT
 |-
-∀x(x∘e = x)
+∀x(e∘x = x)
+∀x(e∘x = x) -> e∘(x∘e) = x∘e 
+e∘(x∘e) = x∘e 
+-- (e∘x)∘e = x∘e 
+-- ...
+-- ∀x(x∘e = x)

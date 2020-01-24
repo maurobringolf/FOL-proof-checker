@@ -17,10 +17,6 @@ f `isInstanceOf` ax = case ax of
   Literal f' -> f' == f
   Schema f'  -> f' f
 
-
-
-
-
 data Result = Correct
             | Incorrect Context Formula
 

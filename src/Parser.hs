@@ -56,6 +56,7 @@ parseOperand sig = (m_parens (parseFormula sig))
                <|> try (parseRel sig)
                <|> (parseNot sig)
                <|> (parseFA sig)
+               <|> (parseEX sig)
 
 parseRel :: Signature -> Parser Formula
 parseRel sig = do r <- m_identifier
@@ -72,6 +73,12 @@ parseFA sig = do m_symbol "∀"
                  x <- m_identifier
                  f <- m_parens (parseFormula sig)
                  return $ FA x f
+
+parseEX :: Signature -> Parser Formula
+parseEX sig = do m_symbol "∃"
+                 x <- m_identifier
+                 f <- m_parens (parseFormula sig)
+                 return $ EX x f
 
 parseEq :: Signature -> Parser Formula
 parseEq sig = do t1 <- parseTerm sig

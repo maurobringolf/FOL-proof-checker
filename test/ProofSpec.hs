@@ -46,6 +46,7 @@ proofTests = do
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
 
   gt_right_neutral <- readFile "test/proofs/correct/gt-right-neutral.proof"
+  gt_right_inverse <- readFile "test/proofs/correct/gt-right-inverse.proof"
   gt_eee <- readFile "test/proofs/correct/gt-e-e-e.proof"
 
   hspec $ do
@@ -56,6 +57,10 @@ proofTests = do
         
       it "GT: right neutrality of e" $ do
         let (_, ctxt, proof) = parse gt_right_neutral
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "GT: left inverse is also right inverse" $ do
+        let (_, ctxt, proof) = parse gt_right_inverse
         checkProof ctxt proof `shouldBe` Correct
 
       it "GT: e ∘ e = e" $ do
