@@ -95,3 +95,14 @@ lhsToEquals f = case f of
                                        return (tau:taus, tau':taus')
   _ -> Nothing
 
+instance Eq Formula where
+  f1 == f2 = case (f1,f2) of
+    (And f11 f12, And f21 f22) -> f11 == f21 && f12 == f22
+    (Or f11 f12, Or f21 f22) -> f11 == f21 && f12 == f22
+    (Imp f11 f12, Imp f21 f22) -> f11 == f21 && f12 == f22
+    (Not f1, Not f2) -> f1 == f2
+    (Rel r1 ts1, Rel r2 ts2) -> r1 == r2 && ts1 == ts2
+    (EX x1 f1, EX x2 f2) -> substF x1 (Var "x") f1 == substF x2 (Var "x") f2
+    (FA x1 f1, FA x2 f2) -> substF x1 (Var "x") f1 == substF x2 (Var "x") f2
+    (_,_) -> False
+

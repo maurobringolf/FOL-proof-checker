@@ -5,7 +5,7 @@ import Test.QuickCheck
 
 import TestUtils
 
-import Signature
+import qualified Signature as Sig
 import Term
 import Formula
 import Proof
@@ -19,13 +19,13 @@ miscTests = do
   hspec $ do
     describe "misc tests" $ do
       it "`x` is well-formed" $ do
-        wf_term sig_empty (v "x") `shouldBe` True
+        wf_term Sig.empty (v "x") `shouldBe` True
 
       it "Any variable is well-formed" $
-        property $ \s -> wf_term sig_empty (Var s)
+        property $ \s -> wf_term Sig.empty (Var s)
 
       it "Any constant is well-formed if it is in the signature" $
-        property $ \s -> wf_term (sig_empty {constants = [s]} ) (c s)
+        property $ \s -> wf_term (Sig.empty {Sig.constants = [s]} ) (c s)
 
       it "φ |- φ" $
         property $ \phi -> Correct == checkProof [Literal phi] [phi] 

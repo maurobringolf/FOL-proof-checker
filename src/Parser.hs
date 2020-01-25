@@ -9,11 +9,15 @@ import Text.Parsec.Language
 
 import Data.Char(isUpper, isDigit)
 
-import Signature
+import Signature(Signature)
+import qualified Signature as Sig
 import Term
 import Formula
 import Proof
 import Context
+import qualified Theory.GT
+import qualified Theory.PA
+import qualified Theory.ZF
 
 def = emptyDef { commentStart = "--"
                , commentEnd = "\n"
@@ -51,8 +55,10 @@ parseOperand :: Signature -> Parser Formula
 parseOperand sig = (m_parens (parseFormula sig))
                <|> try (parseEq sig)
                <|> try (parseRel sig)
+               <|> try (parseInfixRel sig)
                <|> (parseNot sig)
                <|> (parseFA sig)
+               <|> (parseEX sig)
 
 parseRel :: Signature -> Parser Formula
 parseRel sig = do r <- m_identifier
@@ -61,7 +67,8 @@ parseRel sig = do r <- m_identifier
 
 parseInfixRel :: Signature -> Parser Formula
 parseInfixRel sig = do t1 <- parseTerm sig
-                       r <- choice (map (\(r,_) -> m_symbol r) (filter (\(_,n) -> n == 2) (relations sig)))
+                       error "peng"
+                       r <- choice (map (\(r,_) -> m_symbol r) (filter (\(_,n) -> n == 2) (Sig.relations sig)))
                        t2 <- parseTerm sig
                        return $ Rel r [t1, t2]
 
@@ -76,6 +83,12 @@ parseFA sig = do m_symbol "∀"
                  f <- m_parens (parseFormula sig)
                  return $ FA x f
 
+parseEX :: Signature -> Parser Formula
+parseEX sig = do m_symbol "∃"
+                 x <- m_identifier
+                 f <- m_parens (parseFormula sig)
+                 return $ EX x f
+
 parseEq :: Signature -> Parser Formula
 parseEq sig = do t1 <- parseTerm sig
                  m_symbol "="
@@ -86,7 +99,7 @@ parseTerm :: Signature -> Parser Term
 parseTerm sig = parseExp sig
 
 parseExp :: Signature -> Parser Term
-parseExp sig = buildExpressionParser (map (\f -> [ Infix (m_symbol f >> return (\l -> \r -> FApp f [l, r])) AssocRight] ) (binary_functions sig)) (parseAtom sig) <?> "term"
+parseExp sig = buildExpressionParser (map (\f -> [ Infix (m_symbol f >> return (\l -> \r -> FApp f [l, r])) AssocRight] ) (Sig.binary_functions sig)) (parseAtom sig) <?> "term"
 
 parseAtom :: Signature -> Parser Term
 parseAtom sig = m_parens (parseTerm sig)
@@ -99,7 +112,7 @@ parseFApp sig = do f <- m_identifier
                    return $ FApp f args
 
 parseVarConst :: Signature -> Parser Term
-parseVarConst sig = let isConst c = c `elem` (constants sig)
+parseVarConst sig = let isConst c = c `elem` (Sig.constants sig)
                         varConst s = if isConst s then Const s else Var s
                     in
                     do s <- m_identifier
@@ -109,11 +122,11 @@ parseDetailedSignature :: Parser Signature
 parseDetailedSignature = do m_symbol "constants:"
                             cs <- m_commaSep m_identifier
                             -- TODO Do we need functions and relations?
-                            return $ sig_empty { constants = cs }
+                            return $ Sig.empty { Sig.constants = cs }
 
 parseSignature :: Parser Signature
 parseSignature = try parseDetailedSignature
-             <|> return sig_empty
+             <|> return Sig.empty
 
 parseContext :: Signature -> Parser Context
 parseContext sig = do axs <- many (parseFormula sig)
@@ -124,7 +137,9 @@ parseProof sig = do fs <- many (parseFormula sig)
                     return $ reverse fs
 
 parseTheory :: Parser (Signature, Context)
-parseTheory = m_symbol "#PA" >> return (sig_PA, ctxt_PA)
+parseTheory = do try (m_symbol "#PA" >> return (Sig.pa, Theory.PA.axioms))
+                 <|> try (m_symbol "#GT" >> return (Sig.gt, Theory.GT.axioms))
+                 <|> try (m_symbol "#ZF" >> return (Sig.st, Theory.ZF.axioms))
 
 parsePreamble :: Parser (Signature, Context)
 parsePreamble = parseTheory

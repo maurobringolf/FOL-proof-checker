@@ -12,7 +12,6 @@ data Formula = Rel Symbol [Term]
              | Imp Formula Formula
              | EX Symbol Formula
              | FA Symbol Formula
-  deriving (Eq)
 
 
 instance Show Formula where

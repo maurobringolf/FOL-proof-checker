@@ -47,10 +47,26 @@ proofTests = do
   
   zfAxioms   <- readFile "test/proofs/correct/zf-axioms.proof"
 
+  gt_right_neutral <- readFile "test/proofs/correct/gt-right-neutral.proof"
+  gt_right_inverse <- readFile "test/proofs/correct/gt-right-inverse.proof"
+  gt_eee <- readFile "test/proofs/correct/gt-e-e-e.proof"
+
   hspec $ do
     describe "checkProof" $ do
       it "simple modus ponens" $ do
         let (_, ctxt, proof) = parse simpleMP
+        checkProof ctxt proof `shouldBe` Correct
+        
+      it "GT: right neutrality of e" $ do
+        let (_, ctxt, proof) = parse gt_right_neutral
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "GT: left inverse is also right inverse" $ do
+        let (_, ctxt, proof) = parse gt_right_inverse
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "GT: e ∘ e = e" $ do
+        let (_, ctxt, proof) = parse gt_eee
         checkProof ctxt proof `shouldBe` Correct
 
       it "ZF set theory axioms" $ do
