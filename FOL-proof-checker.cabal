@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 065c49c9377054a23f9e7aca0a18f1360adebdfc6b65dc9d5d42d5abd67c6095
+-- hash: 6ef19620f425db02420776a5079c632aecea6853e39e0d905d6c8a85e4950d3b
 
 name:           FOL-proof-checker
 version:        0.1.0.0
@@ -34,6 +34,7 @@ library
       Signature
       Term
       Theory.Logical
+      Theory.ZF
   other-modules:
       Paths_FOL_proof_checker
   hs-source-dirs:

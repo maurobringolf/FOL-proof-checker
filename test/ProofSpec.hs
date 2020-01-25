@@ -44,11 +44,17 @@ proofTests = do
 
   justEq   <- readFile "test/proofs/incorrect/just-equality.proof"
   fAppEq   <- readFile "test/proofs/incorrect/fapp-equality.proof"
+  
+  zfAxioms   <- readFile "test/proofs/correct/zf-axioms.proof"
 
   hspec $ do
     describe "checkProof" $ do
       it "simple modus ponens" $ do
         let (_, ctxt, proof) = parse simpleMP
+        checkProof ctxt proof `shouldBe` Correct
+
+      it "ZF set theory axioms" $ do
+        let (_, ctxt, proof) = parse zfAxioms
         checkProof ctxt proof `shouldBe` Correct
 
       it "generalisation" $ do

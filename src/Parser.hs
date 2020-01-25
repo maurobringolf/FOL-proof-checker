@@ -59,6 +59,12 @@ parseRel sig = do r <- m_identifier
                   args <- (try (m_parens (m_commaSep (parseTerm sig))) <|> return [])
                   return $ Rel r args
 
+parseInfixRel :: Signature -> Parser Formula
+parseInfixRel sig = do t1 <- parseTerm sig
+                       r <- choice (map (\(r,_) -> m_symbol r) (filter (\(_,n) -> n == 2) (relations sig)))
+                       t2 <- parseTerm sig
+                       return $ Rel r [t1, t2]
+
 parseNot :: Signature -> Parser Formula
 parseNot sig = do m_symbol "¬"
                   f <- parseOperand sig
@@ -119,7 +125,6 @@ parseProof sig = do fs <- many (parseFormula sig)
 
 parseTheory :: Parser (Signature, Context)
 parseTheory = m_symbol "#PA" >> return (sig_PA, ctxt_PA)
-                 
 
 parsePreamble :: Parser (Signature, Context)
 parsePreamble = parseTheory

@@ -22,3 +22,9 @@ sig_PA = Signature { constants = [ "0" ]
                    , relations = []
 }
 
+sig_ST :: Signature
+sig_ST = Signature { constants = []
+                   , functions = []
+                   , binary_functions = []
+                   , relations = [ ("∈", 2) ]
+}
