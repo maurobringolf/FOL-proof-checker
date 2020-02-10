@@ -33,5 +33,5 @@ st :: Signature
 st = Signature { constants = []
                , functions = []
                , binary_functions = []
-               , relations = [ ("e", 2) ]
+               , relations = [ ("∈", 2) ]
 }

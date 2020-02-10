@@ -15,6 +15,7 @@ import Term
 import Formula
 import Proof
 import Context
+import Data.Char(isSymbol)
 import qualified Theory.GT
 import qualified Theory.PA
 import qualified Theory.ZF
@@ -61,13 +62,12 @@ parseOperand sig = (m_parens (parseFormula sig))
                <|> (parseEX sig)
 
 parseRel :: Signature -> Parser Formula
-parseRel sig = do r <- m_identifier
+parseRel sig = do r <- choice (map (\(r,_) -> m_symbol r) (Sig.relations sig))
                   args <- (try (m_parens (m_commaSep (parseTerm sig))) <|> return [])
                   return $ Rel r args
 
 parseInfixRel :: Signature -> Parser Formula
 parseInfixRel sig = do t1 <- parseTerm sig
-                       error "peng"
                        r <- choice (map (\(r,_) -> m_symbol r) (filter (\(_,n) -> n == 2) (Sig.relations sig)))
                        t2 <- parseTerm sig
                        return $ Rel r [t1, t2]
@@ -107,7 +107,7 @@ parseAtom sig = m_parens (parseTerm sig)
             <|> parseVarConst sig
 
 parseFApp :: Signature -> Parser Term
-parseFApp sig = do f <- m_identifier
+parseFApp sig = do f <- choice (map (\(f,_) -> m_symbol f) (Sig.functions sig))
                    args <- m_parens $ m_commaSep1 (parseTerm sig)
                    return $ FApp f args
 
@@ -119,10 +119,29 @@ parseVarConst sig = let isConst c = c `elem` (Sig.constants sig)
                        return $ varConst s
 
 parseDetailedSignature :: Parser Signature
-parseDetailedSignature = do m_symbol "constants:"
-                            cs <- m_commaSep m_identifier
-                            -- TODO Do we need functions and relations?
-                            return $ Sig.empty { Sig.constants = cs }
+parseDetailedSignature = do cs <- try parseConstantSig <|> return []
+                            fs <- try parseFunctionsSig <|> return []
+                            rs <- try parseRelationSig <|> return []
+                            return $ Sig.empty { Sig.constants = cs, Sig.relations = rs, Sig.functions = fs }
+
+parseConstantSig :: Parser [String]
+parseConstantSig = do m_symbol "#constants:"
+                      cs <- m_commaSep m_identifier
+                      return cs
+
+parseFunctionsSig :: Parser [(Sig.Symbol, Int)]
+parseFunctionsSig = do m_symbol "#functions:"
+                       fs <-  (m_commaSep  ((do f <- m_identifier
+                                                n <- m_parens m_integer
+                                                return (f,fromIntegral n)) :: Parser (Sig.Symbol, Int)))
+                       return fs
+
+parseRelationSig :: Parser [(Sig.Symbol, Int)]
+parseRelationSig = do m_symbol "#relations:"
+                      rs <-  (m_commaSep  ((do r <- m_identifier
+                                               n <- m_parens m_integer
+                                               return (r,fromIntegral n)) :: Parser (Sig.Symbol, Int)))
+                      return rs
 
 parseSignature :: Parser Signature
 parseSignature = try parseDetailedSignature

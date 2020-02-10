@@ -1,3 +1,5 @@
+#functions: f(1), z(1), g(1), h(1)
+#relations: f1(0), f2(0)
 |-
 -- (f1 ∧ f2) -> f1
 (x = z(z) ∧ g(h(a)) = f(b)) -> x = z(z)

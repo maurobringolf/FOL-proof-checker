@@ -14,6 +14,12 @@ getConstants t = case t of
   Var x     -> []
   FApp f ts -> concatMap getConstants ts
 
+getFunctions :: Term -> [(Symbol, Int)]
+getFunctions t = case t of
+  Const c   -> []
+  Var x     -> []
+  FApp f ts -> (f, length ts) : concatMap getFunctions ts
+
 freeF :: Formula -> Set.Set Symbol
 freeF f = case f of
   And f1 f2 -> freeF f1 `Set.union` freeF f2

@@ -1,3 +1,4 @@
+#relations: A(0), B(0)
 A <-> B
 |-
 A <-> B

@@ -1,4 +1,4 @@
-constants: 1
+#constants: 1
 |-
 1 = 1 ∨ ¬(1 = 1)
 x = x ∨ ¬(x = x)

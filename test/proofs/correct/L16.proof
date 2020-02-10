@@ -1,3 +1,4 @@
+#functions: f(1)
 |-
 x = y -> f(x) = f(y)
 
