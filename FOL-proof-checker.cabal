@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: af2a9e3a9e0b5cd2a18108af2a7cd2f7cd530e1b4cb8cb47d078fb7070789726
+-- hash: a0a56f5aaf8bd0f92aa42d22b50db74c73caec584346f0a35f9d9cbcb8d106fb
 
 name:           FOL-proof-checker
 version:        0.1.0.0
@@ -69,6 +69,7 @@ test-suite FOL-proof-checker-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      DefinitionsSpec
       MiscSpec
       ParserSpec
       ProofSpec

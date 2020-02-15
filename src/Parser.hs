@@ -9,11 +9,12 @@ import Text.Parsec.Language
 
 import Data.Char(isUpper, isDigit)
 
-import Signature(Signature)
+import Signature(Signature, Symbol)
 import qualified Signature as Sig
 import Term
 import Formula
 import Proof
+import AstUtils(substF)
 import Context
 import Data.Char(isSymbol)
 import qualified Theory.GT
@@ -151,9 +152,35 @@ parseContext :: Signature -> Parser Context
 parseContext sig = do axs <- many (parseFormula sig)
                       return $ map Literal axs
 
-parseProof :: Signature -> Parser Proof
-parseProof sig = do fs <- many (parseFormula sig)
-                    return $ reverse fs
+parseProof :: Signature -> [Formula] -> Parser Proof
+parseProof sig fs = (eof >> return fs)
+                    <|> (do (f, sig') <- parseProofStep sig
+                            gs <- parseProof sig' (f:fs)
+                            return gs)
+
+parseProofStep :: Signature -> Parser (Formula, Signature)
+parseProofStep sig = parseCommand sig
+                     <|> (do f <- parseFormula sig
+                             return (f,sig))
+
+parseCommand :: Signature -> Parser (Formula, Signature)
+parseCommand = parseConstDef -- <|> parseRelDef <|> parseFunDef
+
+parseConstDef :: Signature -> Parser (Formula, Signature)
+parseConstDef sig = do m_symbol "#define"
+                       c <- m_identifier 
+                       m_symbol "as"
+                       x <- m_identifier
+                       m_symbol "in"
+                       f <- parseFormula sig
+                       return (constDefProofObligation x f, sig { Sig.constants = c : Sig.constants sig })
+
+constDefProofObligation :: Symbol -> Formula -> Formula
+constDefProofObligation x f = let x' = x ++ "_"
+                              in
+                              EX x (And f (FA x' (Imp (substF x (Var x') f) (Rel "=" [Var x, Var x']))))
+
+
 
 parseTheory :: Parser (Signature, Context)
 parseTheory = do try (m_symbol "#PA" >> return (Sig.pa, Theory.PA.axioms))
@@ -170,8 +197,7 @@ parseProofText :: Parser (Signature, Context, Proof)
 parseProofText = do (sig, ctxt) <- parsePreamble
                     ctxt' <- parseContext sig
                     m_symbol "|-"
-                    proof <- parseProof sig
-                    eof
+                    proof <- parseProof sig []
                     return (sig, ctxt ++ ctxt', proof)
 
 parse :: String -> (Signature, Context, Proof)
