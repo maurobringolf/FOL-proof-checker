@@ -18,7 +18,7 @@ empty = Signature { constants = []
 pa :: Signature
 pa = Signature { constants = [ "0" ]
                , functions = [ ("s", 1), ("(+)", 2) ]
-               , binary_functions = [ "+" ]
+               , binary_functions = [ "+", "*" ]
                , relations = []
 }
 

@@ -24,6 +24,7 @@ dependencies:
 - QuickCheck
 - parsec
 - containers
+- z3 >= 408.1
 
 library:
   source-dirs: src
