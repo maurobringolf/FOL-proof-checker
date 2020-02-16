@@ -1,6 +1,4 @@
 #GT
+∀x(∃y(y∘x = e ∧ ∀z(z∘x = e -> y = z)))
 |-
-∀z(∃y(y∘z = e))
-∀x(∃y(y∘x = e)) -> ∃y(y∘x = e)
-∃y(y∘x = e)
-
+#define linv(x) as y in y∘x = e

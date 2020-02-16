@@ -112,3 +112,9 @@ instance Eq Formula where
     (FA x1 f1, FA x2 f2) -> substF x1 (Var "x") f1 == substF x2 (Var "x") f2
     (_,_) -> False
 
+forall :: [Symbol] -> Formula -> Formula
+forall xs f = case xs of
+  []   -> f
+  (x:xs) -> FA x (forall xs f)
+
+

@@ -14,7 +14,7 @@ import qualified Signature as Sig
 import Term
 import Formula
 import Proof
-import AstUtils(substF)
+import AstUtils(substF, forall)
 import Context
 import Data.Char(isSymbol)
 import qualified Theory.GT
@@ -164,7 +164,8 @@ parseProofStep sig = parseCommand sig
                              return (f,sig))
 
 parseCommand :: Signature -> Parser (Formula, Signature)
-parseCommand = parseConstDef -- <|> parseRelDef <|> parseFunDef
+parseCommand sig = try (parseConstDef sig)
+               <|> parseFunDef sig
 
 parseConstDef :: Signature -> Parser (Formula, Signature)
 parseConstDef sig = do m_symbol "#define"
@@ -172,15 +173,26 @@ parseConstDef sig = do m_symbol "#define"
                        m_symbol "as"
                        x <- m_identifier
                        m_symbol "in"
-                       f <- parseFormula sig
-                       return (constDefProofObligation x f, sig { Sig.constants = c : Sig.constants sig })
+                       theta_c <- parseFormula sig
+                       return (constDefProofObligation x theta_c, sig { Sig.constants = c : Sig.constants sig })
 
 constDefProofObligation :: Symbol -> Formula -> Formula
-constDefProofObligation x f = let x' = x ++ "_"
-                              in
-                              EX x (And f (FA x' (Imp (substF x (Var x') f) (Rel "=" [Var x, Var x']))))
+constDefProofObligation x f = funDefProofObligation [] x f
 
+parseFunDef :: Signature -> Parser (Formula, Signature)
+parseFunDef sig = do m_symbol "#define"
+                     f <- m_identifier
+                     xs <- m_parens (m_commaSep1 m_identifier)
+                     m_symbol "as"
+                     y <- m_identifier
+                     m_symbol "in"
+                     theta_f <- parseFormula sig
+                     return (funDefProofObligation xs y theta_f, sig { Sig.functions = (f, length xs) : Sig.functions sig })
 
+funDefProofObligation :: [Symbol] -> Symbol -> Formula -> Formula
+funDefProofObligation xs y f = let y' = y ++ "_"
+                               in
+                               forall xs (EX y (And f (FA y' (Imp (substF y (Var y') f) (Rel "=" [Var y, Var y'])))))
 
 parseTheory :: Parser (Signature, Context)
 parseTheory = do try (m_symbol "#PA" >> return (Sig.pa, Theory.PA.axioms))
