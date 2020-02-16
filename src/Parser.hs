@@ -152,34 +152,37 @@ parseContext :: Signature -> Parser Context
 parseContext sig = do axs <- many (parseFormula sig)
                       return $ map Literal axs
 
-parseProof :: Signature -> [Formula] -> Parser Proof
-parseProof sig fs = (eof >> return fs)
-                    <|> (do (f, sig') <- parseProofStep sig
-                            gs <- parseProof sig' (f:fs)
-                            return gs)
+parseProof :: Signature -> [Formula] -> Parser (Proof, Context)
+parseProof sig fs = (eof >> return (fs, []))
+                    <|> (do (f, sig', ctxt) <- parseProofStep sig
+                            (gs, ctxt') <- parseProof sig' (f:fs)
+                            return (gs, ctxt ++ ctxt'))
 
-parseProofStep :: Signature -> Parser (Formula, Signature)
+parseProofStep :: Signature -> Parser (Formula, Signature, Context)
 parseProofStep sig = parseCommand sig
                      <|> (do f <- parseFormula sig
-                             return (f,sig))
+                             return (f,sig, []))
 
-parseCommand :: Signature -> Parser (Formula, Signature)
+parseCommand :: Signature -> Parser (Formula, Signature, Context)
 parseCommand sig = try (parseConstDef sig)
                <|> parseFunDef sig
 
-parseConstDef :: Signature -> Parser (Formula, Signature)
+parseConstDef :: Signature -> Parser (Formula, Signature, Context)
 parseConstDef sig = do m_symbol "#define"
                        c <- m_identifier 
                        m_symbol "as"
                        x <- m_identifier
                        m_symbol "in"
                        theta_c <- parseFormula sig
-                       return (constDefProofObligation x theta_c, sig { Sig.constants = c : Sig.constants sig })
+                       return (constDefProofObligation x theta_c, sig { Sig.constants = c : Sig.constants sig }, [Literal $ constDefinition c x theta_c])
 
 constDefProofObligation :: Symbol -> Formula -> Formula
 constDefProofObligation x f = funDefProofObligation [] x f
 
-parseFunDef :: Signature -> Parser (Formula, Signature)
+constDefinition :: Symbol -> Symbol -> Formula -> Formula
+constDefinition c x f = substF x (Const c) f
+
+parseFunDef :: Signature -> Parser (Formula, Signature, Context)
 parseFunDef sig = do m_symbol "#define"
                      f <- m_identifier
                      xs <- m_parens (m_commaSep1 m_identifier)
@@ -187,7 +190,7 @@ parseFunDef sig = do m_symbol "#define"
                      y <- m_identifier
                      m_symbol "in"
                      theta_f <- parseFormula sig
-                     return (funDefProofObligation xs y theta_f, sig { Sig.functions = (f, length xs) : Sig.functions sig })
+                     return (funDefProofObligation xs y theta_f, sig { Sig.functions = (f, length xs) : Sig.functions sig }, [])
 
 funDefProofObligation :: [Symbol] -> Symbol -> Formula -> Formula
 funDefProofObligation xs y f = let y' = y ++ "_"
@@ -209,8 +212,8 @@ parseProofText :: Parser (Signature, Context, Proof)
 parseProofText = do (sig, ctxt) <- parsePreamble
                     ctxt' <- parseContext sig
                     m_symbol "|-"
-                    proof <- parseProof sig []
-                    return (sig, ctxt ++ ctxt', proof)
+                    (proof, ctxt'') <- parseProof sig []
+                    return (sig, ctxt ++ ctxt' ++ ctxt'', proof)
 
 parse :: String -> (Signature, Context, Proof)
 parse text = case Text.Parsec.parse parseProofText "" text of

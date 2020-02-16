@@ -2,4 +2,5 @@
 ∃x(x = s(0) ∧ ∀y(y = s(0) -> y = x))
 |-
 #define 1 as x in x = s(0)
+1 = s(0)
 
