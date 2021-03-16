@@ -5,7 +5,10 @@
 A proof checker for a proof calculus of first order logic.
 
 This program reads formal proofs in the language of **first order logic (FOL)** and checks them for correctness.
-I developed this for fun and educational purposes only, but am nevertheless open to contributions or suggestions.
+I wrote this for fun and educational purposes only, essentially to internalise two things:
+
+1. Formal proofs can be checked mechanically.
+1. A conventional math proof is a long shot from a formal proof.
 
 ## Syntax
 
@@ -60,14 +63,14 @@ For convenience, **Peano arithmetic (PA)** is predefined and can be "imported" u
 
 ## CLI interface
 
-The CLI program takes as input a path to a text file containing a proof,
-checks it and prints the results.
-If the proof is not correct, the checker stops at *the first incorrect step*.
-Using [stack](https://docs.haskellstack.org/en/stable/README/),
-you can compile and run this project as follows:
+The program takes as input a path to a text file containing a proof and checks it.
+If the proof is not correct, it stops at the *first* incorrect step.
+I compile and run this with [stack](https://docs.haskellstack.org/en/stable/README/):
 
 ```
-stack build
-stack exec FOL-proof-checker-exe path/to/some-proof.txt
+$> stack build
+$> stack exec FOL-proof-checker-exe test/proof/correct/simple-modus-ponens.proof
+Correct
+$>
 ```
 
