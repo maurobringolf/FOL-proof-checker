@@ -34,19 +34,14 @@ Finally, the sequence of formulae after `|-` is a proof in the sense of the next
 
 ### Signature
 
-There are some [predefined theories](https://github.com/maurobringolf/FOL-proof-checker/tree/master/src/Theory) including:
-
-* `#PA`: Peano arithmetic
-* `#GT`: Group theory
-
-Loading the theory will automatically add the necessary signature.
-One can also define custom signatures:
+The signature can be specified as a preamble to the proof as follows:
 
     #constants: 0, 1, a, b, c
     #functions: f(1), g(4)
     #relations: R(0), S(2), T(1)
 
 Where numbers in parenthesis are the arities.
+Everything is untyped and there is only one domain for values.
 
 ## Proof calculus
 
