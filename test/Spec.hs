@@ -11,12 +11,9 @@ import Data.Char(isAsciiLower)
 import ProofSpec(proofTests)
 import ParserSpec(parseTests)
 import MiscSpec(miscTests)
-import DefinitionsSpec(definitionTests)
 
 main :: IO ()
 main = do parseTests
           miscTests
           proofTests
-          definitionTests 
           
-

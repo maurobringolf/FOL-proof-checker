@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.33.0.
+-- This file has been generated from package.yaml by hpack version 0.34.3.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: a0a56f5aaf8bd0f92aa42d22b50db74c73caec584346f0a35f9d9cbcb8d106fb
+-- hash: ada80ea24f8f92fa2afb196f91d9a3249e22f76fa369325288a39e586d94c383
 
 name:           FOL-proof-checker
 version:        0.1.0.0
@@ -33,10 +33,8 @@ library
       Proof
       Signature
       Term
-      Theory.GT
       Theory.Logical
       Theory.PA
-      Theory.ZF
   other-modules:
       Paths_FOL_proof_checker
   hs-source-dirs:
@@ -69,7 +67,6 @@ test-suite FOL-proof-checker-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      DefinitionsSpec
       MiscSpec
       ParserSpec
       ProofSpec

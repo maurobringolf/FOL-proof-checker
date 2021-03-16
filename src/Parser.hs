@@ -17,9 +17,7 @@ import Proof
 import AstUtils(substF, forall)
 import Context
 import Data.Char(isSymbol)
-import qualified Theory.GT
 import qualified Theory.PA
-import qualified Theory.ZF
 
 def = emptyDef { commentStart = "--"
                , commentEnd = "\n"
@@ -198,9 +196,7 @@ funDefProofObligation xs y f = let y' = y ++ "_"
                                forall xs (EX y (And f (FA y' (Imp (substF y (Var y') f) (Rel "=" [Var y, Var y'])))))
 
 parseTheory :: Parser (Signature, Context)
-parseTheory = do try (m_symbol "#PA" >> return (Sig.pa, Theory.PA.axioms))
-                 <|> try (m_symbol "#GT" >> return (Sig.gt, Theory.GT.axioms))
-                 <|> try (m_symbol "#ZF" >> return (Sig.st, Theory.ZF.axioms))
+parseTheory = try (m_symbol "#PA" >> return (Sig.pa, Theory.PA.axioms))
 
 parsePreamble :: Parser (Signature, Context)
 parsePreamble = parseTheory

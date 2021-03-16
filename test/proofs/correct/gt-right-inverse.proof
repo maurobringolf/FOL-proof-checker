@@ -1,4 +1,0 @@
-#GT
-∀x(∃y(y∘x = e ∧ ∀z(z∘x = e -> y = z)))
-|-
-#define linv(x) as y in y∘x = e
